@@ -75,6 +75,7 @@
     brandCar: 'all',
     brandTw: 'all',
     twType: 'all',
+    twSort: 'default',
     maxPrice: VAN_PRICE_MAX,
     seats: 'all',
     acOnly: false,
@@ -128,6 +129,24 @@
       if (state.brandTw !== 'all' && v.brand !== state.brandTw) return false;
       return state.twType === 'all' || v.type === state.twType;
     });
+  }
+
+  /* How many two wheelers the browse page shows before handing off to the
+     dedicated listing. */
+  var TW_PREVIEW = 12;
+
+  function twSorted() {
+    var list = twResults().slice();
+    var dir = state.twSort === 'price-desc' ? -1 : 1;
+    if (state.twSort === 'price-asc' || state.twSort === 'price-desc') {
+      list.sort(function (a, b) {
+        /* Anything priced at the counter sits at the end either way. */
+        if (a.price == null) return 1;
+        if (b.price == null) return -1;
+        return (a.price - b.price) * dir;
+      });
+    }
+    return list;
   }
 
   function brandKeys(list) {
@@ -265,7 +284,13 @@
           'Electric scooters and petrol bikes. The cheapest way onto the road, ' +
           'and everything here is financed too.',
           'tw', ALL_TW, state.brandTw, 'brandpills--tw') +
-        '<div class="grid-wrap"><div class="cardgrid" data-grid="tw"></div></div>' +
+        '<div class="grid-wrap">' +
+          '<div class="cardgrid" data-grid="tw"></div>' +
+          '<button class="browseall" data-go="store">' +
+            '<span class="browseall__label">Browse all two wheelers</span>' +
+            '<span class="browseall__count" data-tw-total></span>' +
+          '</button>' +
+        '</div>' +
       '</div>' +
 
     '</div>' +
@@ -568,7 +593,15 @@
 
   function paintTw() {
     var results = twResults();
-    view.querySelector('[data-grid="tw"]').innerHTML = results.map(cardHTML).join('');
+    view.querySelector('[data-grid="tw"]').innerHTML =
+      results.slice(0, TW_PREVIEW).map(cardHTML).join('');
+
+    var total = view.querySelector('[data-tw-total]');
+    if (total) {
+      total.textContent = results.length > TW_PREVIEW
+        ? 'Showing ' + TW_PREVIEW + ' of ' + results.length
+        : 'All ' + results.length + ' shown';
+    }
     paintFilterMeta('tw', results.length);
   }
 
@@ -813,6 +846,89 @@
         paintTw();
       }
     });
+  }
+
+  /* ------------------------------------------------------- two wheeler store
+
+     A page of its own for the full floor: same filters as the section, plus a
+     sort, and no other sections competing for the screen. */
+
+  function mountStore() {
+    var results = twSorted();
+
+    view.innerHTML = '' +
+      '<div class="crumbs">' +
+        '<button data-go="browse">Browse</button>' +
+        '<span>/</span>' +
+        '<span class="crumbs__here">Two wheelers</span>' +
+      '</div>' +
+
+      '<div class="sechead">' +
+        '<div>' +
+          '<div class="sechead__index">Every model on the floor</div>' +
+          '<h1 class="sechead__title">Bikes and scooters</h1>' +
+          '<p class="sechead__note">Electric scooters and petrol bikes from Honda, TVS, ' +
+            'Yamaha, Bajaj, Sarathi, Ecooter, Luyuan and Garow. Everything here is financed.</p>' +
+        '</div>' +
+        '<div class="sechead__filter">' +
+          '<span class="sechead__filter-label">Type</span>' +
+          '<div class="typechips" data-store-type>' + typeChips() + '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="storebar">' +
+        '<div class="storebar__brands" data-store-pills>' + pillsHTML(ALL_TW, state.brandTw) + '</div>' +
+        '<div class="storebar__tail">' +
+          '<label class="storebar__sortlabel" for="tw-sort">Sort</label>' +
+          '<select class="field storebar__sort" id="tw-sort" data-store-sort>' +
+            '<option value="default"' + (state.twSort === 'default' ? ' selected' : '') + '>Featured first</option>' +
+            '<option value="price-asc"' + (state.twSort === 'price-asc' ? ' selected' : '') + '>Price, low to high</option>' +
+            '<option value="price-desc"' + (state.twSort === 'price-desc' ? ' selected' : '') + '>Price, high to low</option>' +
+          '</select>' +
+          '<span class="storebar__count"><strong data-store-count>' + results.length + '</strong> of ' +
+            ALL_TW.length + '</span>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="grid-wrap">' +
+        '<div class="cardgrid" data-store-grid></div>' +
+        '<div data-store-empty></div>' +
+      '</div>';
+
+    paintStore();
+
+    view.querySelector('[data-store-type]').addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-tw-type-key]');
+      if (!btn) return;
+      state.twType = btn.getAttribute('data-tw-type-key');
+      view.querySelector('[data-store-type]').innerHTML = typeChips();
+      paintStore();
+    });
+
+    view.querySelector('[data-store-pills]').addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-brand]');
+      if (!btn) return;
+      state.brandTw = btn.getAttribute('data-brand');
+      view.querySelector('[data-store-pills]').innerHTML = pillsHTML(ALL_TW, state.brandTw);
+      paintStore();
+    });
+
+    var sort = view.querySelector('[data-store-sort]');
+    sort.addEventListener('change', function () {
+      state.twSort = sort.value;
+      paintStore();
+    });
+  }
+
+  function paintStore() {
+    var results = twSorted();
+    view.querySelector('[data-store-grid]').innerHTML = results.map(cardHTML).join('');
+    view.querySelector('[data-store-count]').textContent = results.length;
+    view.querySelector('[data-store-empty]').innerHTML = results.length ? '' :
+      '<div class="empty">' +
+        '<div class="empty__title">Nothing matches that</div>' +
+        '<p class="empty__note">Clear the brand or switch back to all types.</p>' +
+      '</div>';
   }
 
   /* ------------------------------------------------------------- about view */
@@ -1323,6 +1439,7 @@
     if (state.view === 'detail') mountDetail();
     else if (state.view === 'finance') mountFinance();
     else if (state.view === 'about') mountAbout();
+    else if (state.view === 'store') mountStore();
     else mountBrowse();
   }
 
@@ -1370,6 +1487,9 @@
 
     var about = e.target.closest('[data-go="about"]');
     if (about) { state.view = 'about'; render(); toTop(); return; }
+
+    var store = e.target.closest('[data-go="store"]');
+    if (store) { state.view = 'store'; render(); toTop(); return; }
 
     var jumpTo = e.target.closest('[data-jump]');
     if (jumpTo) {

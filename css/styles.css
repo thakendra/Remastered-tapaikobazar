@@ -647,6 +647,50 @@ input[type=range]::-moz-range-track {
 .summary__total-value { font-family: var(--display); font-size: 48px; line-height: 0.9; color: var(--pink); }
 .summary__fineprint { font-size: 11.5px; color: rgba(255, 255, 255, 0.55); margin-top: 16px; line-height: 1.7; }
 
+/* ------------------------------------------------ browse-all handoff + store */
+
+.browseall {
+  width: 100%;
+  margin-top: 24px;
+  padding: 20px 24px;
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: var(--body);
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  flex-wrap: wrap;
+}
+.browseall:hover { background: var(--ink); }
+.browseall__label {
+  font-family: var(--display); font-size: 22px; letter-spacing: 0.06em; line-height: 1;
+}
+.browseall__label::after {
+  content: '→';
+  font-family: var(--body);
+  margin-left: 10px;
+}
+.browseall__count { font-size: 12px; color: rgba(255, 255, 255, 0.6); }
+
+.storebar {
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  padding: 18px var(--gutter);
+  display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+}
+.storebar__brands { display: flex; flex-wrap: wrap; gap: 8px; }
+/* Off the navy header these need the light treatment. */
+.storebar__brands .pill { background: #fff; color: var(--ink); border-color: var(--field); }
+.storebar__brands .pill.is-on { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+.storebar__tail { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.storebar__sortlabel {
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--slate);
+}
+.storebar__sort { width: auto; padding: 9px 12px; font-size: 12.5px; }
+.storebar__count { font-size: 12.5px; color: var(--slate); white-space: nowrap; }
+.storebar__count strong { color: var(--navy); font-weight: 600; }
+
 /* --------------------------------------------------- unphotographed stock */
 
 .shot-none {
@@ -1129,6 +1173,11 @@ body.is-drawer-open { overflow: hidden; }
   .howto__title, .about__h2 { font-size: 36px; }
   .about__title { font-size: 42px; }
   .exchange__points { grid-template-columns: 1fr; }
+  .storebar { gap: 16px; }
+  .storebar__tail { margin-left: 0; width: 100%; }
+  .storebar__count { margin-left: auto; }
+  .browseall { padding: 16px 18px; }
+  .browseall__label { font-size: 19px; }
   .values { grid-template-columns: 1fr; }
   .team { grid-template-columns: repeat(2, 1fr); }
   .leader { flex-direction: column; gap: 16px; }

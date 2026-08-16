@@ -35,13 +35,17 @@ Everything lives on one page and swaps out `#view`:
 - **Detail** — gallery, specification table, price and EMI box, highlights, related stock.
 - **Finance** — three steps (terms, applicant details, documents) plus a confirmation,
   with a live summary panel down the right.
+- **Two wheelers** — a page of its own for the full floor, reached from the "Browse all
+  two wheelers" button. Same type and brand filters as the section plus a price sort.
+  The browse page shows the first `TW_PREVIEW` (12) and hands off here.
 - **About** — the founding story, the six values, leadership, the 13-person team, the
   Auto Nepal press feature and showroom photographs.
 
 ## Two wheelers without a photograph
 
 The showroom price list is now a full store: all 53 two wheelers are cards with specs,
-prices and detail pages, rather than a table. Only 16 of them have a photograph — the
+prices and detail pages, rather than a table. The browse page previews twelve and the
+rest live on the dedicated two wheelers page. Only 16 of them have a photograph — the
 seven the old site featured, six scooters, and three pulled from honda.com.np.
 
 The other 37 render a placeholder card carrying the brand and model name. To fix one,
