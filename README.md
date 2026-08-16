@@ -20,9 +20,9 @@ Then open <http://localhost:5173>.
 | --- | --- |
 | `index.html` | Page shell: top strip, masthead, view container, footer |
 | `css/styles.css` | All styling, tokens at the top of the file |
-| `js/data.js` | The catalogue — 26 vehicles, document checklist, financing defaults |
-| `js/app.js` | State and rendering for the three views |
-| `assets/` | Logo and the four vehicle photographs we host ourselves |
+| `js/data.js` | The catalogue — 77 vehicles, company content, financing defaults |
+| `js/app.js` | State and rendering for the four views |
+| `assets/` | Logo, favicons, vehicle photographs and the team portraits |
 
 ## The four views
 
