@@ -41,6 +41,21 @@ Everything lives on one page and swaps out `#view`:
 - **About** — the founding story, the six values, leadership, the 13-person team, the
   Auto Nepal press feature and showroom photographs.
 
+## The hero
+
+Centred rather than left aligned, taking its cues from nextgeninterior.com: a slow
+cross-fade between photographs, each one drifting from 1.08 to 1.0 over seven seconds,
+under a vertical scrim that is dark at the top and bottom and clear in the middle.
+
+The stack is eyebrow, headline, a hairline that fades out at both ends, one letterspaced
+line of copy, two bordered badges carrying the model and its price, then the buttons.
+Dots and a scroll cue sit at the foot. `.hero__body` reserves 128px of bottom padding so
+a three line headline can never reach the dots, and `.hero__title` is capped at 20ch so
+the `<br />` in each headline is the only line break.
+
+Slides live in `HERO_SLIDES` in `js/data.js`. `id` points at a catalogue entry, so the
+model name and price follow the catalogue rather than being retyped.
+
 ## Two wheelers without a photograph
 
 The showroom price list is now a full store: all 53 two wheelers are cards with specs,

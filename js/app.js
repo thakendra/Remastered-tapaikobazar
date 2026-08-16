@@ -372,11 +372,12 @@
             '<div class="hero__body">' +
               '<span class="hero__eyebrow">' + esc(s.eyebrow) + '</span>' +
               '<h1 class="hero__title">' + s.title + '</h1>' +
-              '<p class="hero__lede">' + esc(s.sub) + '</p>' +
+              '<span class="hero__rule"></span>' +
               '<p class="hero__short">' + esc(s.short) + '</p>' +
               '<div class="hero__meta">' +
-                '<span class="hero__name">' + esc(v.name) + '</span>' +
-                '<span class="hero__price">' + esc(priceText(v, 'Price at the counter')) + '</span>' +
+                '<span class="hero__badge">' + esc(v.name) + '</span>' +
+                '<span class="hero__badge hero__badge--price">' +
+                  esc(priceText(v, 'Price at the counter')) + '</span>' +
               '</div>' +
               '<div class="hero__actions">' +
                 '<button class="btn btn--red btn--md" data-open="' + esc(v.id) + '">View details</button>' +
@@ -396,6 +397,11 @@
             '" role="tab" aria-selected="' + (i === 0) + '" aria-label="' + esc(s.eyebrow) + '"></button>';
         }).join('') +
       '</div>' +
+
+      '<button class="hero__scroll" data-scroll-browse aria-label="Scroll to the vehicles">' +
+        '<span class="hero__scroll-track"><span class="hero__scroll-fill"></span></span>' +
+        '<span class="hero__scroll-word">Scroll</span>' +
+      '</button>' +
     '</div>';
   }
 
@@ -1478,6 +1484,8 @@
 
     var goSlide = e.target.closest('[data-hero-go]');
     if (goSlide) { showSlide(Number(goSlide.getAttribute('data-hero-go'))); startHero(); return; }
+
+    if (e.target.closest('[data-scroll-browse]')) { jump('browse', 80); return; }
 
     var open = e.target.closest('[data-open]');
     if (open) { openVehicle(open.getAttribute('data-open')); return; }
