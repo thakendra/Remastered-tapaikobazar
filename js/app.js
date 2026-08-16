@@ -74,6 +74,7 @@
     brandVan: 'all',
     brandCar: 'all',
     brandTw: 'all',
+    twType: 'all',
     maxPrice: VAN_PRICE_MAX,
     seats: 'all',
     acOnly: false,
@@ -124,7 +125,8 @@
 
   function twResults() {
     return ALL_TW.filter(function (v) {
-      return state.brandTw === 'all' || v.brand === state.brandTw;
+      if (state.brandTw !== 'all' && v.brand !== state.brandTw) return false;
+      return state.twType === 'all' || v.type === state.twType;
     });
   }
 
@@ -140,6 +142,34 @@
 
   /* ----------------------------------------------------------- card markup */
 
+  /* Not every model on the price list has been photographed yet, and the
+     remote photographs we do have can go away without warning. Both cases land
+     on the same placeholder. */
+  function placeholderHTML(v) {
+    return '<span class="shot-none">' +
+      '<span class="shot-none__brand">' + esc(v.brand) + '</span>' +
+      '<span class="shot-none__name">' + esc(v.name) + '</span>' +
+      '<span class="shot-none__note">Photograph coming</span>' +
+    '</span>';
+  }
+
+  function shotHTML(v, loading) {
+    if (!v.img) return placeholderHTML(v);
+    return '<img src="' + esc(v.img) + '" alt="' + esc(v.name) + '" data-vid="' + esc(v.id) + '"' +
+      (loading ? ' loading="' + loading + '"' : '') +
+      ' onerror="tbShotFailed(this)" />';
+  }
+
+  /* Inline so it fires even for images that fail before any listener binds. */
+  window.tbShotFailed = function (img) {
+    var box = img.parentNode;
+    if (!box) return;
+    var id = img.getAttribute('data-vid');
+    var v = (id && find(id)) || { brand: '', name: img.alt || '' };
+    img.remove();
+    box.insertAdjacentHTML('afterbegin', placeholderHTML(v));
+  };
+
   function cardHTML(v) {
     var isVan = v.type === 'van';
     var quick = isVan
@@ -149,7 +179,7 @@
     return '' +
       '<button class="card" data-open="' + esc(v.id) + '">' +
         '<div class="card__shot">' +
-          '<img src="' + esc(v.img) + '" alt="' + esc(v.name) + '" loading="lazy" />' +
+          shotHTML(v, 'lazy') +
           '<span class="card__tag">' + esc(TYPE_LABEL[v.type]) + '</span>' +
         '</div>' +
         '<div class="card__body">' +
@@ -235,10 +265,7 @@
           'Electric scooters and petrol bikes. The cheapest way onto the road, ' +
           'and everything here is financed too.',
           'tw', ALL_TW, state.brandTw, 'brandpills--tw') +
-        '<div class="grid-wrap">' +
-          '<div class="cardgrid" data-grid="tw"></div>' +
-          priceListHTML() +
-        '</div>' +
+        '<div class="grid-wrap"><div class="cardgrid" data-grid="tw"></div></div>' +
       '</div>' +
 
     '</div>' +
@@ -265,6 +292,10 @@
       '</div>' +
       '<div class="sechead__filter-home" data-home="brand-' + group + '">' +
         '<div class="sechead__filter" data-filter-block="brand-' + group + '">' +
+          (group === 'tw'
+            ? '<span class="sechead__filter-label">Type</span>' +
+              '<div class="typechips" data-tw-type>' + typeChips() + '</div>'
+            : '') +
           '<span class="sechead__filter-label">Brand</span>' +
           '<div class="brandpills ' + pillsClass + '" data-pills="' + group + '">' +
             pillsHTML(list, current) +
@@ -272,6 +303,13 @@
         '</div>' +
       '</div>' +
     '</div>';
+  }
+
+  function typeChips() {
+    return [['all', 'All'], ['scooter', 'Electric'], ['bike', 'Petrol']].map(function (t) {
+      return '<button class="pill' + (state.twType === t[0] ? ' is-on' : '') +
+        '" data-tw-type-key="' + t[0] + '">' + esc(t[1]) + '</button>';
+    }).join('');
   }
 
   var GROUP_NOUN = { van: ['van', 'vans'], car: ['car', 'cars'], tw: ['two wheeler', 'two wheelers'] };
@@ -408,30 +446,6 @@
   function seatChips() {
     return seatChip('all', 'Any') + seatChip('11', '11') + seatChip('14', '14') +
       seatChip('15', '15–16') + seatChip('17', '17+');
-  }
-
-  /* The full showroom price list, collapsed by default — it is long. */
-  function priceListHTML() {
-    var count = BIKE_PRICE_LIST.reduce(function (n, g) { return n + g.models.length; }, 0);
-
-    return '<div class="pricelist">' +
-      '<button class="pricelist__toggle" data-pricelist>' +
-        '<span data-pricelist-label>See the full price list — all ' + count + ' models</span>' +
-      '</button>' +
-      '<div class="pricelist__body" data-pricelist-body hidden>' +
-        BIKE_PRICE_LIST.map(function (g) {
-          return '<div class="pricelist__group">' +
-            '<div class="pricelist__brand">' + esc(g.brand) + '</div>' +
-            '<div class="pricelist__scroll"><table class="pricelist__table">' +
-              '<thead><tr><th>Model</th><th>Price (NPR)</th><th>Specs</th></tr></thead>' +
-              '<tbody>' + g.models.map(function (m) {
-                return '<tr><td>' + esc(m[0]) + '</td><td>' + esc(m[1]) + '</td><td>' + esc(m[2]) + '</td></tr>';
-              }).join('') + '</tbody>' +
-            '</table></div>' +
-          '</div>';
-        }).join('') +
-      '</div>' +
-    '</div>';
   }
 
   function howToBuyHTML() {
@@ -601,6 +615,16 @@
     bindPills('van');
     bindPills('car');
     bindPills('tw');
+
+    /* Electric / petrol split for the two wheelers */
+    var types = view.querySelector('[data-tw-type]');
+    types.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-tw-type-key]');
+      if (!btn) return;
+      state.twType = btn.getAttribute('data-tw-type-key');
+      view.querySelector('[data-tw-type]').innerHTML = typeChips();
+      paintTw();
+    });
 
     /* Price ceiling */
     var slider = view.querySelector('[data-max-price]');
@@ -908,8 +932,9 @@
   function mountDetail() {
     var v = currentVehicle();
     var isVan = v.type === 'van';
-    var shots = shotsOf(v);
+    var shots = shotsOf(v).filter(Boolean);
     var mainImg = shots[state.galleryIndex] || v.img;
+    var highlights = v.highlights || [];
 
     var related = CATALOGUE.filter(function (x) {
       return x.type === v.type && x.id !== v.id;
@@ -931,7 +956,7 @@
 
       '<div class="detail">' +
         '<div class="detail__left">' +
-          '<div class="detail__hero"><img src="' + esc(mainImg) + '" alt="' + esc(v.name) + '" /></div>' +
+          '<div class="detail__hero">' + shotHTML({ img: mainImg, name: v.name, brand: v.brand, id: v.id }) + '</div>' +
           (shots.length > 1
             ? '<div class="detail__thumbs">' + shots.map(function (src, i) {
                 return '<button class="detail__thumb' + (i === state.galleryIndex ? ' is-on' : '') +
@@ -960,7 +985,7 @@
         '<div class="detail__right">' +
           '<div class="detail__brand">' + esc(v.brand) + '</div>' +
           '<h1 class="detail__name">' + esc(v.name) + '</h1>' +
-          '<p class="detail__blurb">' + esc(v.blurb) + '</p>' +
+          (v.blurb ? '<p class="detail__blurb">' + esc(v.blurb) + '</p>' : '') +
 
           '<div class="pricebox">' +
             '<div class="pricebox__row pricebox__row--top">' +
@@ -980,22 +1005,24 @@
             '<a href="#" class="btn btn--outline-navy btn--block">Book a test ride</a>' +
           '</div>' +
 
-          '<div class="detail__block">' +
-            '<div class="detail__block-label">Why people buy this one</div>' +
-            '<div class="highlights">' +
-              v.highlights.map(function (h) {
-                return '<div class="highlight"><span class="highlight__dot"></span>' +
-                  '<span class="highlight__text">' + esc(h) + '</span></div>';
-              }).join('') +
-            '</div>' +
-          '</div>' +
+          (highlights.length
+            ? '<div class="detail__block">' +
+                '<div class="detail__block-label">Why people buy this one</div>' +
+                '<div class="highlights">' +
+                  highlights.map(function (h) {
+                    return '<div class="highlight"><span class="highlight__dot"></span>' +
+                      '<span class="highlight__text">' + esc(h) + '</span></div>';
+                  }).join('') +
+                '</div>' +
+              '</div>'
+            : '') +
 
           '<div class="detail__block">' +
             '<div class="detail__block-label">Also worth a look</div>' +
             '<div class="related">' +
               related.map(function (r) {
                 return '<button class="related__item" data-open="' + esc(r.id) + '">' +
-                  '<span class="related__shot"><img src="' + esc(r.img) + '" alt="' + esc(r.name) + '" /></span>' +
+                  '<span class="related__shot">' + shotHTML(r, 'lazy') + '</span>' +
                   '<span class="related__meta">' +
                     '<span class="related__name">' + esc(r.name) + '</span>' +
                     '<span class="related__price">' + esc(priceText(r, 'Price at the counter')) + '</span>' +
@@ -1318,17 +1345,6 @@
     toTop();
   }
 
-  function togglePriceList(btn) {
-    var body = view.querySelector('[data-pricelist-body]');
-    var open = body.hidden;
-    body.hidden = !open;
-    btn.classList.toggle('is-open', open);
-    view.querySelector('[data-pricelist-label]').textContent = open
-      ? 'Hide the full price list'
-      : 'See the full price list — all ' +
-        BIKE_PRICE_LIST.reduce(function (n, g) { return n + g.models.length; }, 0) + ' models';
-  }
-
   /* Vehicle cards and "Browse" crumbs live inside re-rendered markup, so both
      are handled by one delegated listener rather than per-element bindings. */
   document.addEventListener('click', function (e) {
@@ -1345,9 +1361,6 @@
 
     var goSlide = e.target.closest('[data-hero-go]');
     if (goSlide) { showSlide(Number(goSlide.getAttribute('data-hero-go'))); startHero(); return; }
-
-    var toggle = e.target.closest('[data-pricelist]');
-    if (toggle) { togglePriceList(toggle); return; }
 
     var open = e.target.closest('[data-open]');
     if (open) { openVehicle(open.getAttribute('data-open')); return; }

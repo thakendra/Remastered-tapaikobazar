@@ -30,13 +30,31 @@ Everything lives on one page and swaps out `#view`:
 
 - **Browse** — hero, trust stats, then vans / cars / two wheelers. Vans filter by brand,
   price ceiling, seat count and air conditioning; cars and two wheelers filter by brand
-  only. Under the two wheelers sits the full 43-model price list, collapsed by default.
-  Then how to buy, testimonials, the exchange camp and the visit form.
+  only, plus an electric/petrol split. Then how to buy, testimonials, the exchange
+  camp and the visit form.
 - **Detail** — gallery, specification table, price and EMI box, highlights, related stock.
 - **Finance** — three steps (terms, applicant details, documents) plus a confirmation,
   with a live summary panel down the right.
 - **About** — the founding story, the six values, leadership, the 13-person team, the
   Auto Nepal press feature and showroom photographs.
+
+## Two wheelers without a photograph
+
+The showroom price list is now a full store: all 53 two wheelers are cards with specs,
+prices and detail pages, rather than a table. Only 16 of them have a photograph — the
+seven the old site featured, six scooters, and three pulled from honda.com.np.
+
+The other 37 render a placeholder card carrying the brand and model name. To fix one,
+drop an image into `assets/` and add it as the fifth field of its row in
+`TWO_WHEELER_LIST` in `js/data.js`:
+
+    ['Honda', 'Honda Unicorn', 295000, '162.7cc · 55 kmpl · 13.3 PS · Disc', 'assets/honda-unicorn.jpg'],
+
+The same placeholder catches any remote photograph that stops resolving, so a dead
+third-party URL degrades rather than leaving a broken image.
+
+Entries built from the price list carry real specs but no write up, so their detail
+pages simply omit the blurb and the "why people buy this one" block.
 
 ## Known data problems in the source
 

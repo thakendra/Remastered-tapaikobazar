@@ -647,6 +647,35 @@ input[type=range]::-moz-range-track {
 .summary__total-value { font-family: var(--display); font-size: 48px; line-height: 0.9; color: var(--pink); }
 .summary__fineprint { font-size: 11.5px; color: rgba(255, 255, 255, 0.55); margin-top: 16px; line-height: 1.7; }
 
+/* --------------------------------------------------- unphotographed stock */
+
+.shot-none {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px;
+  padding: 16px;
+  text-align: center;
+  background:
+    repeating-linear-gradient(135deg, transparent 0 10px, rgba(0, 56, 101, 0.035) 10px 20px),
+    var(--img-bg);
+}
+.shot-none__brand {
+  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted);
+}
+.shot-none__name {
+  font-family: var(--display); font-size: 22px; line-height: 1.05; color: var(--navy);
+  max-width: 90%;
+}
+.shot-none__note { font-size: 10.5px; color: var(--muted); margin-top: 4px; }
+
+.detail__hero .shot-none__name { font-size: 40px; }
+.related__shot .shot-none { padding: 4px; gap: 0; }
+.related__shot .shot-none__brand, .related__shot .shot-none__note { display: none; }
+.related__shot .shot-none__name { font-size: 12px; }
+
+/* Electric / petrol chips, on the navy section header. */
+.typechips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+
 /* ------------------------------------------------------- full price list */
 
 .pricelist { margin-top: 36px; }
@@ -898,7 +927,8 @@ input[type=range]::-moz-range-track {
 /* Relocated blocks: unpick the on-navy, single-row styling they wear inline. */
 .drawer__body .sechead__filter { align-items: stretch; gap: 12px; }
 .drawer__body .sechead__filter-label { color: var(--slate); }
-.drawer__body .brandpills { justify-content: flex-start; max-width: none; }
+.drawer__body .brandpills,
+.drawer__body .typechips { justify-content: flex-start; max-width: none; }
 .drawer__body .pill { background: #fff; color: var(--ink); border-color: var(--field); }
 .drawer__body .pill.is-on { background: var(--navy); color: #fff; border-color: var(--navy); }
 

@@ -46,7 +46,10 @@ const IMG = {
   ntorq: 'https://tvsnepal.com/images/color/Ntorq-Race-Edition60c1e8be895bbNtorq-Race-Edition5e1b0fdfd160aNtorq-Race-Edition.png',
   fzs: 'https://www.maw2wheelers.com/wp-content/uploads/2024/09/FZ-FI-V3-Black.jpg',
   rayzr: 'https://www.maw2wheelers.com/wp-content/uploads/2024/09/1.-RayZR-HYBRID-Disc-Premium-Premium-Plus.jpg',
-  ns200: 'assets/ns-200-nepal.webp'
+  ns200: 'assets/ns-200-nepal.webp',
+  hondaSp125: 'https://honda.com.np/wp-content/uploads/product-catalog/motorcycles/SP-125-Web-Banner.png',
+  hondaDio110: 'https://honda.com.np/wp-content/uploads/product-catalog/motorcycles/Dio-110-BS6-Web-Banner.png',
+  hondaShine: 'https://honda.com.np/wp-content/uploads/product-catalog/motorcycles/Honda-Shine-BS6-Web-Banner.png'
 };
 
 /* The hero slider. id points at a CATALOGUE entry, so the price and the
@@ -304,61 +307,89 @@ const CATALOGUE = [
     highlights: ['Twenty four and a half horsepower.', 'Dual channel ABS.', 'Easy EMI financing available.'] }
 ];
 
-/* The full showroom price list. Not every model below is on the floor on any
-   given day — the counter confirms availability. */
-const BIKE_PRICE_LIST = [
-  { brand: 'Honda', models: [
-    ['Honda Shine 125', '2,60,900', '124cc · 65 kmpl · 10.5 PS · Disc'],
-    ['Honda SP 125', '2,75,000', '124cc · 65 kmpl · 10.9 PS · Disc'],
-    ['Honda Unicorn', '2,95,000', '162.7cc · 55 kmpl · 13.3 PS · Disc'],
-    ['Honda Hornet 2.0', '3,45,000', '184.4cc · 45 kmpl · 17.26 PS · Dual disc ABS'],
-    ['Honda CB300R', '6,25,000', '286cc · 30 kmpl · 31 PS · Dual ABS'],
-    ['Honda Activa 125', '2,15,000', '124cc · 60 kmpl · 8.1 PS · Drum'],
-    ['Honda Dio', '1,85,000', '109cc · 55 kmpl · 7.8 PS · Drum']
-  ] },
-  { brand: 'TVS', models: [
-    ['TVS XL 100', '1,57,900', '99.7cc · Moped · 4 PS'],
-    ['TVS Radeon Fi', '2,29,900', '109.7cc · 65 kmpl · 8.19 PS'],
-    ['TVS Ntorq 125 Drum', '2,48,900', '124.8cc · 47 kmpl · 9.38 PS'],
-    ['TVS Stryker 125', '2,51,900', '124.8cc · 62 kmpl · 9.4 PS'],
-    ['TVS Jupiter 2025', '2,57,900', '109.7cc · 55 kmpl · 7.5 PS · Scooter'],
-    ['TVS Ntorq 125 Disc', '2,71,900', '124.8cc · 47 kmpl · 9.38 PS · Disc'],
-    ['TVS Raider', '2,76,900', '124.8cc · 67 kmpl · 11.4 PS'],
-    ['TVS Ntorq 125 Race Edition', '2,79,900', '124.8cc · 47 kmpl · 9.38 PS · Bluetooth'],
-    ['TVS Ntorq Disc Fi', '2,88,900', '124.8cc · 47 kmpl · 9.38 PS · Disc + FI'],
-    ['TVS Raider Fi', '2,99,900', '124.8cc · 67 kmpl · 11.4 PS · FI'],
-    ['TVS Raider iGo', '3,09,900', '124.8cc · 67 kmpl · 11.4 PS · Hybrid'],
-    ['TVS Ntorq RTFI BS6', '3,13,900', '124.8cc · 47 kmpl · 9.38 PS · RTFI'],
-    ['TVS Apache RTR 160 2V', '3,21,900', '159.7cc · 52 kmpl · 15.8 PS'],
-    ['TVS Ntorq XP', '3,32,900', '124.8cc · 47 kmpl · 9.38 PS · XP Edition'],
-    ['TVS Apache RTR 160 4V FD', '3,39,900', '159.7cc · 45 kmpl · 17.63 PS'],
-    ['TVS Apache RTR 160 2V FI', '3,47,900', '159.7cc · 52 kmpl · 15.8 PS · FI'],
-    ['TVS Apache RTR 160 4V ABS', '3,59,900', '159.7cc · 45 kmpl · 17.63 PS · ABS'],
-    ['TVS Apache RTR 160 4V SE', '3,89,900', '159.7cc · 45 kmpl · 17.63 PS · Special edition'],
-    ['TVS Apache RTR 200 4V ABS', '3,93,900', '197.75cc · 40 kmpl · 20.8 PS · ABS'],
-    ['TVS Apache RTR 200 4V RTFI', '3,99,900', '197.75cc · 40 kmpl · 20.8 PS · FI + ABS'],
-    ['TVS Ronin', '4,59,900', '225.9cc · 40 kmpl · 20.4 PS · ABS'],
-    ['TVS RR 310', '7,99,900', '312.2cc · 30 kmpl · 34 PS · ABS']
-  ] },
-  { brand: 'Yamaha', models: [
-    ['Yamaha Saluto 125 Disc', '2,82,900', '125cc · 55 kmpl · 8.4 PS · Disc'],
-    ['Yamaha RayZR 125 Hybrid Disc', '3,12,900', '125cc · 71 kmpl · 8.2 PS · Hybrid · Disc'],
-    ['Yamaha RayZR SR Hybrid', '3,32,900', '125cc · 71 kmpl · 8.2 PS · Street Rally'],
-    ['Yamaha FZ FI V2', '3,66,900', '149cc · 45 kmpl · 12.4 PS · Disc'],
-    ['Yamaha FZS FI V2', '3,84,900', '149cc · 45 kmpl · 12.4 PS · Disc'],
-    ['Yamaha FZ FI V3 Standard', '3,84,900', '149cc · 45 kmpl · 12.4 PS · ABS'],
-    ['Yamaha FZS FI V3 Deluxe', '4,10,900', '149cc · 45 kmpl · 12.4 PS · ABS · LED'],
-    ['Yamaha Aerox 155 BS6', '4,99,900', '155cc · 48 kmpl · 15 PS · ABS · TCS · VVA']
-  ] },
-  { brand: 'Bajaj', models: [
-    ['Bajaj Pulsar N125', '2,10,000', '124.45cc · 55 kmpl · 11.8 PS'],
-    ['Bajaj Pulsar 150', '2,55,000', '149.5cc · 50 kmpl · 14 PS · Disc'],
-    ['Bajaj Pulsar N160', '3,10,000', '164.82cc · 45 kmpl · 16 PS · ABS'],
-    ['Bajaj Pulsar NS 200', '4,11,900', '199.5cc · 35 kmpl · 24.5 PS · Dual ABS'],
-    ['Bajaj Pulsar N250', '4,80,000', '249.07cc · 35 kmpl · 24.5 PS · Dual ABS'],
-    ['Bajaj Dominar 400', '6,80,000', '373.27cc · 30 kmpl · 40 PS · Dual ABS']
-  ] }
+/* The rest of the two wheeler floor, from the showroom price list. Compact
+   rows because that is all the source gives us: brand, name, rupee price, the
+   spec line as published, and a photograph where we have one. Anything without
+   a photograph falls back to a placeholder card — drop a file into assets/ and
+   add it as the fifth field to fix that.
+
+   Not every model is on the floor on any given day; the counter confirms. */
+const TWO_WHEELER_LIST = [
+  ['Honda', 'Honda Shine 125', 260900, '124cc · 65 kmpl · 10.5 PS · Disc', IMG.hondaShine],
+  ['Honda', 'Honda SP 125', 275000, '124cc · 65 kmpl · 10.9 PS · Disc', IMG.hondaSp125],
+  ['Honda', 'Honda Unicorn', 295000, '162.7cc · 55 kmpl · 13.3 PS · Disc'],
+  ['Honda', 'Honda Hornet 2.0', 345000, '184.4cc · 45 kmpl · 17.26 PS · Dual disc ABS'],
+  ['Honda', 'Honda CB300R', 625000, '286cc · 30 kmpl · 31 PS · Dual ABS'],
+  ['Honda', 'Honda Activa 125', 215000, '124cc · 60 kmpl · 8.1 PS · Drum'],
+  ['Honda', 'Honda Dio', 185000, '109cc · 55 kmpl · 7.8 PS · Drum', IMG.hondaDio110],
+
+  ['TVS', 'TVS XL 100', 157900, '99.7cc · Moped · 4 PS'],
+  ['TVS', 'TVS Radeon Fi', 229900, '109.7cc · 65 kmpl · 8.19 PS'],
+  ['TVS', 'TVS Ntorq 125 Drum', 248900, '124.8cc · 47 kmpl · 9.38 PS'],
+  ['TVS', 'TVS Stryker 125', 251900, '124.8cc · 62 kmpl · 9.4 PS'],
+  ['TVS', 'TVS Jupiter 2025', 257900, '109.7cc · 55 kmpl · 7.5 PS · Scooter'],
+  ['TVS', 'TVS Ntorq 125 Disc', 271900, '124.8cc · 47 kmpl · 9.38 PS · Disc'],
+  ['TVS', 'TVS Raider', 276900, '124.8cc · 67 kmpl · 11.4 PS'],
+  ['TVS', 'TVS Ntorq Disc Fi', 288900, '124.8cc · 47 kmpl · 9.38 PS · Disc + FI'],
+  ['TVS', 'TVS Raider Fi', 299900, '124.8cc · 67 kmpl · 11.4 PS · FI'],
+  ['TVS', 'TVS Raider iGo', 309900, '124.8cc · 67 kmpl · 11.4 PS · Hybrid'],
+  ['TVS', 'TVS Ntorq RTFI BS6', 313900, '124.8cc · 47 kmpl · 9.38 PS · RTFI'],
+  ['TVS', 'TVS Apache RTR 160 2V', 321900, '159.7cc · 52 kmpl · 15.8 PS'],
+  ['TVS', 'TVS Ntorq XP', 332900, '124.8cc · 47 kmpl · 9.38 PS · XP Edition'],
+  ['TVS', 'TVS Apache RTR 160 4V FD', 339900, '159.7cc · 45 kmpl · 17.63 PS'],
+  ['TVS', 'TVS Apache RTR 160 2V FI', 347900, '159.7cc · 52 kmpl · 15.8 PS · FI'],
+  ['TVS', 'TVS Apache RTR 160 4V ABS', 359900, '159.7cc · 45 kmpl · 17.63 PS · ABS'],
+  ['TVS', 'TVS Apache RTR 160 4V SE', 389900, '159.7cc · 45 kmpl · 17.63 PS · Special edition'],
+  ['TVS', 'TVS Apache RTR 200 4V ABS', 393900, '197.75cc · 40 kmpl · 20.8 PS · ABS'],
+  ['TVS', 'TVS Apache RTR 200 4V RTFI', 399900, '197.75cc · 40 kmpl · 20.8 PS · FI + ABS'],
+  ['TVS', 'TVS Ronin', 459900, '225.9cc · 40 kmpl · 20.4 PS · ABS'],
+  ['TVS', 'TVS RR 310', 799900, '312.2cc · 30 kmpl · 34 PS · ABS'],
+
+  ['Yamaha', 'Yamaha Saluto 125 Disc', 282900, '125cc · 55 kmpl · 8.4 PS · Disc'],
+  ['Yamaha', 'Yamaha RayZR 125 Hybrid Disc', 312900, '125cc · 71 kmpl · 8.2 PS · Hybrid · Disc'],
+  ['Yamaha', 'Yamaha RayZR SR Hybrid', 332900, '125cc · 71 kmpl · 8.2 PS · Street Rally'],
+  ['Yamaha', 'Yamaha FZ FI V2', 366900, '149cc · 45 kmpl · 12.4 PS · Disc'],
+  ['Yamaha', 'Yamaha FZS FI V2', 384900, '149cc · 45 kmpl · 12.4 PS · Disc'],
+  ['Yamaha', 'Yamaha FZ FI V3 Standard', 384900, '149cc · 45 kmpl · 12.4 PS · ABS'],
+  ['Yamaha', 'Yamaha Aerox 155 BS6', 499900, '155cc · 48 kmpl · 15 PS · ABS · TCS · VVA'],
+
+  ['Bajaj', 'Bajaj Pulsar N125', 210000, '124.45cc · 55 kmpl · 11.8 PS'],
+  ['Bajaj', 'Bajaj Pulsar 150', 255000, '149.5cc · 50 kmpl · 14 PS · Disc'],
+  ['Bajaj', 'Bajaj Pulsar N160', 310000, '164.82cc · 45 kmpl · 16 PS · ABS'],
+  ['Bajaj', 'Bajaj Pulsar N250', 480000, '249.07cc · 35 kmpl · 24.5 PS · Dual ABS'],
+  ['Bajaj', 'Bajaj Dominar 400', 680000, '373.27cc · 30 kmpl · 40 PS · Dual ABS']
 ];
+
+/* The published spec line is a single string. Label each part by what it
+   looks like so the detail page can lay it out as a proper table. */
+function specRows(line) {
+  return line.split('·').map(function (s) { return s.trim(); }).filter(Boolean)
+    .map(function (part) {
+      if (/cc$/i.test(part)) return ['Engine', part];
+      if (/kmpl$/i.test(part)) return ['Mileage', part];
+      if (/\bPS$/i.test(part)) return ['Power', part];
+      if (/disc|abs|drum/i.test(part)) return ['Brakes', part];
+      return ['Feature', part];
+    });
+}
+
+/* Fold the price list into the catalogue. A model already listed above with a
+   photograph and a write up wins — those entries are the featured ones. */
+TWO_WHEELER_LIST.forEach(function (row) {
+  var brand = row[0], name = row[1], price = row[2], line = row[3], img = row[4];
+  if (CATALOGUE.some(function (v) { return v.name === name; })) return;
+
+  CATALOGUE.push({
+    id: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+    type: 'bike',
+    brand: brand,
+    name: name,
+    price: price,
+    down: 0,
+    img: img || null,
+    specs: specRows(line).concat([['Financing', 'Easy EMI available']])
+  });
+});
 
 const DOCS = [
   { id: 'citizenship', label: 'Citizenship certificate', note: 'Original plus one photocopy' },
