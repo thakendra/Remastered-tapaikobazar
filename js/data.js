@@ -49,7 +49,29 @@ const IMG = {
   ns200: 'assets/ns-200-nepal.webp'
 };
 
-const HERO_IMG = 'https://cg-ev.com/storage/banner/2023/10/k2_1696571968.jpg';
+/* The hero slider. id points at a CATALOGUE entry, so the price and the
+   "view details" link follow the catalogue rather than being retyped. */
+const HERO_SLIDES = [
+  { id: 'kyc11', eyebrow: 'Electric vans', title: 'Sit in it before<br />you finance it.',
+    sub: 'Nepal’s most affordable electric van. NPR 4,50,000 down, then five years at 5 to 9 percent.',
+    short: 'The cheapest electric van in Nepal.' },
+
+  { id: 'king16', eyebrow: 'The big one', title: 'Sixteen seats,<br />fully air conditioned.',
+    sub: 'The van most tour operators come in asking for. Downpayment still NPR 5,00,000.',
+    short: 'Sixteen air conditioned seats.' },
+
+  { id: 'g6', eyebrow: 'Electric cars', title: '435 kilometres<br />on one charge.',
+    sub: 'A coupe SUV with a five star Euro NCAP rating and an eight year battery warranty.',
+    short: 'Five star safety, 435 km range.' },
+
+  { id: 'dfacEm26', eyebrow: 'On our floor now', title: 'Photographed<br />at Panipokhari.',
+    sub: 'The DFAC EM26 is parked on the floor today. Come and sit in it before you decide.',
+    short: 'Parked on the floor today.' },
+
+  { id: 'e3g', eyebrow: 'Electric scooters', title: '120 kilometres<br />for 2.25 lakh.',
+    sub: 'Cruise control and keyless entry as standard. The cheapest way onto the road.',
+    short: 'Cruise control, keyless, 120 km.' }
+];
 
 /* Every van is financed on the same terms, so the tail of the spec table is
    identical. down is the figure in rupees, shown is the formatted string. */

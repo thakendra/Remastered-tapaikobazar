@@ -175,20 +175,7 @@
 
   function browseHTML() {
     return '' +
-    '<div class="hero">' +
-      '<img class="hero__img" src="' + esc(HERO_IMG) + '" alt="Electric vans at the showroom" />' +
-      '<div class="hero__scrim"></div>' +
-      '<div class="hero__body">' +
-        '<span class="hero__eyebrow">Vans first, then cars, then two wheelers</span>' +
-        '<h1 class="hero__title">Sit in it before<br />you finance it.</h1>' +
-        '<p class="hero__lede">Every van, scooter and bike we list is parked at Panipokhari. ' +
-          'Filter by brand and budget below, then come drive the one you like.</p>' +
-        '<div class="hero__actions">' +
-          '<a href="#" class="btn btn--red btn--md">Book a test ride</a>' +
-          '<button class="btn btn--outline-light btn--md" data-scroll-browse>Browse the floor</button>' +
-        '</div>' +
-      '</div>' +
-    '</div>' +
+    heroHTML() +
 
     '<div class="stats">' +
       TRUST_STATS.map(function (s) { return statCell(s[0], s[1]); }).join('') +
@@ -304,6 +291,106 @@
         '</div>' +
       '</aside>' +
     '</div>';
+  }
+
+  /* ------------------------------------------------------------ hero slider */
+
+  function heroHTML() {
+    return '<div class="hero" data-hero>' +
+      '<div class="hero__stage">' +
+        HERO_SLIDES.map(function (s, i) {
+          var v = find(s.id);
+          if (!v) return '';
+          return '<div class="hero__slide' + (i === 0 ? ' is-on' : '') + '" data-slide="' + i + '"' +
+              (i === 0 ? '' : ' aria-hidden="true"') + '>' +
+            '<img class="hero__img" src="' + esc(v.img) + '" alt="' + esc(v.name) + '"' +
+              (i === 0 ? '' : ' loading="lazy"') + ' />' +
+            '<div class="hero__scrim"></div>' +
+            '<div class="hero__body">' +
+              '<span class="hero__eyebrow">' + esc(s.eyebrow) + '</span>' +
+              '<h1 class="hero__title">' + s.title + '</h1>' +
+              '<p class="hero__lede">' + esc(s.sub) + '</p>' +
+              '<p class="hero__short">' + esc(s.short) + '</p>' +
+              '<div class="hero__meta">' +
+                '<span class="hero__name">' + esc(v.name) + '</span>' +
+                '<span class="hero__price">' + esc(priceText(v, 'Price at the counter')) + '</span>' +
+              '</div>' +
+              '<div class="hero__actions">' +
+                '<button class="btn btn--red btn--md" data-open="' + esc(v.id) + '">View details</button>' +
+                '<a href="#" class="btn btn--outline-light btn--md">Book a test ride</a>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('') +
+      '</div>' +
+
+      '<button class="hero__arrow hero__arrow--prev" data-hero-step="-1" aria-label="Previous vehicle"></button>' +
+      '<button class="hero__arrow hero__arrow--next" data-hero-step="1" aria-label="Next vehicle"></button>' +
+
+      '<div class="hero__dots" role="tablist" aria-label="Featured vehicles">' +
+        HERO_SLIDES.map(function (s, i) {
+          return '<button class="hero__dot' + (i === 0 ? ' is-on' : '') + '" data-hero-go="' + i +
+            '" role="tab" aria-selected="' + (i === 0) + '" aria-label="' + esc(s.eyebrow) + '"></button>';
+        }).join('') +
+      '</div>' +
+    '</div>';
+  }
+
+  var heroAt = 0;
+  var heroTimer = null;
+
+  function showSlide(n) {
+    var slides = view.querySelectorAll('.hero__slide');
+    if (!slides.length) return;
+    heroAt = (n + slides.length) % slides.length;
+
+    slides.forEach(function (el, i) {
+      var on = i === heroAt;
+      el.classList.toggle('is-on', on);
+      if (on) el.removeAttribute('aria-hidden'); else el.setAttribute('aria-hidden', 'true');
+    });
+    view.querySelectorAll('.hero__dot').forEach(function (d, i) {
+      d.classList.toggle('is-on', i === heroAt);
+      d.setAttribute('aria-selected', String(i === heroAt));
+    });
+  }
+
+  function startHero() {
+    stopHero();
+    /* Honour a reduced-motion preference: no unattended movement. */
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (view.querySelectorAll('.hero__slide').length < 2) return;
+    heroTimer = setInterval(function () { showSlide(heroAt + 1); }, 5500);
+  }
+
+  function stopHero() {
+    if (heroTimer) { clearInterval(heroTimer); heroTimer = null; }
+  }
+
+  /* The arrows are hidden on a phone, so the slider has to answer to a swipe. */
+  function bindHeroSwipe() {
+    var hero = view.querySelector('[data-hero]');
+    if (!hero) return;
+    var startX = 0, startY = 0, tracking = false;
+
+    hero.addEventListener('touchstart', function (e) {
+      var t = e.changedTouches[0];
+      startX = t.clientX;
+      startY = t.clientY;
+      tracking = true;
+    }, { passive: true });
+
+    hero.addEventListener('touchend', function (e) {
+      if (!tracking) return;
+      tracking = false;
+      var t = e.changedTouches[0];
+      var dx = t.clientX - startX;
+      var dy = t.clientY - startY;
+      /* Ignore anything that reads as a vertical scroll or a tap. */
+      if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy)) return;
+      showSlide(heroAt + (dx < 0 ? 1 : -1));
+      startHero();
+    }, { passive: true });
   }
 
   function statCell(figure, label) {
@@ -506,9 +593,9 @@
     paintCars();
     paintTw();
 
-    view.querySelector('[data-scroll-browse]').addEventListener('click', function () {
-      jump('browse', 80);
-    });
+    heroAt = 0;
+    startHero();
+    bindHeroSwipe();
 
     /* Brand filters */
     bindPills('van');
@@ -1203,6 +1290,7 @@
 
   function render() {
     closeDrawers();
+    stopHero();
     /* The detail view's sticky action bar needs room at the foot of the page. */
     document.body.classList.toggle('is-detail', state.view === 'detail');
     if (state.view === 'detail') mountDetail();
@@ -1250,6 +1338,13 @@
     if (e.target.closest('[data-drawer-close]')) { closeDrawers(); return; }
 
     if (e.target.closest('[data-open-nav]')) { openNav(); return; }
+
+    /* Manual slider use restarts the clock rather than fighting it. */
+    var step = e.target.closest('[data-hero-step]');
+    if (step) { showSlide(heroAt + Number(step.getAttribute('data-hero-step'))); startHero(); return; }
+
+    var goSlide = e.target.closest('[data-hero-go]');
+    if (goSlide) { showSlide(Number(goSlide.getAttribute('data-hero-go'))); startHero(); return; }
 
     var toggle = e.target.closest('[data-pricelist]');
     if (toggle) { togglePriceList(toggle); return; }
