@@ -570,6 +570,57 @@
     relocateFilters();
   }
 
+  /* -------------------------------------------------------- mobile menu ---
+
+     Lives on <body> rather than inside #view so it survives a view change.
+     It borrows the .drawer markup and styling from the filter sidebar. */
+
+  function mountNav() {
+    var nav = document.createElement('div');
+    nav.className = 'drawer drawer--right';
+    nav.setAttribute('data-drawer', 'nav');
+    nav.innerHTML = '' +
+      '<div class="drawer__scrim" data-drawer-close></div>' +
+      '<aside class="drawer__panel" role="dialog" aria-label="Menu">' +
+        '<div class="drawer__head">' +
+          '<span class="drawer__title">Menu</span>' +
+          '<button class="drawer__close" data-drawer-close aria-label="Close menu">×</button>' +
+        '</div>' +
+        '<div class="drawer__body navmenu">' +
+          '<button class="navmenu__item" data-jump="sec-vans">Electric vans</button>' +
+          '<button class="navmenu__item" data-jump="sec-cars">Electric cars</button>' +
+          '<button class="navmenu__item" data-jump="sec-tw">Two wheelers</button>' +
+          '<button class="navmenu__item" data-go="browse">Exchange</button>' +
+          '<button class="navmenu__item" data-go="about">About us</button>' +
+
+          '<div class="navmenu__contact">' +
+            '<div class="navmenu__label">Showroom</div>' +
+            '<p>' + esc(CONTACT.address) + '</p>' +
+            '<p>' + esc(CONTACT.hours) + '</p>' +
+            '<div class="navmenu__label">Call us</div>' +
+            '<p>' + CONTACT.landlines.concat(CONTACT.mobiles).map(function (n) {
+              return '<a href="tel:' + esc(n) + '">' + esc(n) + '</a>';
+            }).join(' · ') + '</p>' +
+          '</div>' +
+        '</div>' +
+        '<div class="drawer__foot navmenu__foot">' +
+          '<a href="#" class="btn btn--red btn--block">Book a test ride</a>' +
+          '<a href="https://wa.me/' + esc(CONTACT.whatsapp) + '" target="_blank" rel="noopener" ' +
+            'class="btn btn--outline-navy btn--block">WhatsApp us</a>' +
+        '</div>' +
+      '</aside>';
+    document.body.appendChild(nav);
+  }
+
+  function openNav() {
+    var nav = document.querySelector('[data-drawer="nav"]');
+    if (!nav) return;
+    nav.classList.add('is-open');
+    document.body.classList.add('is-drawer-open');
+    var burger = document.querySelector('[data-open-nav]');
+    if (burger) burger.setAttribute('aria-expanded', 'true');
+  }
+
   /* ---------------------------------------------------- filter sidebar */
 
   var narrow = window.matchMedia('(max-width: 980px)');
@@ -614,6 +665,8 @@
       d.classList.remove('is-open');
     });
     document.body.classList.remove('is-drawer-open');
+    var burger = document.querySelector('[data-open-nav]');
+    if (burger) burger.setAttribute('aria-expanded', 'false');
   }
 
   narrow.addEventListener('change', relocateFilters);
@@ -865,6 +918,18 @@
             '</div>' +
           '</div>' +
         '</div>' +
+      '</div>' +
+
+      /* Narrow screens only: keeps the price and the next step in reach
+         without scrolling back up the page. */
+      '<div class="actionbar">' +
+        '<div class="actionbar__price">' +
+          '<span class="actionbar__label">Showroom price</span>' +
+          '<span class="actionbar__value">' + esc(priceText(v, 'Ask at the counter')) + '</span>' +
+        '</div>' +
+        '<button class="btn btn--red actionbar__cta" data-finance>' +
+          (v.price != null ? 'Get finance' : 'Ask the price') +
+        '</button>' +
       '</div>';
 
     view.querySelectorAll('[data-shot]').forEach(function (btn) {
@@ -874,13 +939,16 @@
       });
     });
 
-    view.querySelector('[data-finance]').addEventListener('click', function () {
-      if (v.price == null) return;
-      state.view = 'finance';
-      state.step = 1;
-      state.finDown = v.down || Math.round(v.price * 0.25);
-      render();
-      toTop();
+    /* Two of these on narrow screens: the panel button and the sticky bar. */
+    view.querySelectorAll('[data-finance]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (v.price == null) return;
+        state.view = 'finance';
+        state.step = 1;
+        state.finDown = v.down || Math.round(v.price * 0.25);
+        render();
+        toTop();
+      });
     });
   }
 
@@ -1135,6 +1203,8 @@
 
   function render() {
     closeDrawers();
+    /* The detail view's sticky action bar needs room at the foot of the page. */
+    document.body.classList.toggle('is-detail', state.view === 'detail');
     if (state.view === 'detail') mountDetail();
     else if (state.view === 'finance') mountFinance();
     else if (state.view === 'about') mountAbout();
@@ -1179,6 +1249,8 @@
 
     if (e.target.closest('[data-drawer-close]')) { closeDrawers(); return; }
 
+    if (e.target.closest('[data-open-nav]')) { openNav(); return; }
+
     var toggle = e.target.closest('[data-pricelist]');
     if (toggle) { togglePriceList(toggle); return; }
 
@@ -1194,6 +1266,7 @@
     var jumpTo = e.target.closest('[data-jump]');
     if (jumpTo) {
       var id = jumpTo.getAttribute('data-jump');
+      closeDrawers();
       if (state.view !== 'browse') {
         goBrowse();
         setTimeout(function () { jump(id, 96); }, 60);
@@ -1203,5 +1276,6 @@
     }
   });
 
+  mountNav();
   render();
 })();

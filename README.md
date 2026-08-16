@@ -53,6 +53,23 @@ Carried over from the live site, worth a look before this goes out:
   so her card falls back to initials. Drop a file at `assets/team/maya-lama.jpg` and set
   `img` on her entry in `COMPANY.leaders`.
 
+## The mobile layer
+
+Below 980px the desktop chrome is replaced rather than merely reflowed:
+
+- The top strip and the horizontal nav are dropped. What remains is a **57px sticky
+  bar** — logo, a call button and a hamburger — so navigation is always in reach.
+- The hamburger opens a **slide-in menu from the right**, carrying the section links,
+  the showroom address and hours, all six phone numbers, and the two calls to action.
+  It is the same `.drawer` component as the filter sidebar, hinged on the other side.
+- The trust stats sit **two by two** instead of four stacked rows.
+- On a vehicle page a **sticky action bar** pins the price and "Get finance" to the
+  bottom of the screen. `body.is-detail` pads the page so it never covers the footer,
+  and lifts the WhatsApp button clear of it.
+- The three finance steps stay on **one row**, dropping their "Step one" labels.
+
+Together these cut the run-up to the first vehicle card from 1,511px to 964px.
+
 ## Filters on narrow screens
 
 At 980px and below the filter controls move into a slide-in sidebar, opened by the
