@@ -20,6 +20,7 @@
   --img-bg: #E8EDF3;
 
   --display: 'Bebas Neue', sans-serif;
+  --serif: 'Instrument Serif', Georgia, serif;
   --body: 'Poppins', sans-serif;
 
   --gutter: 48px;
@@ -80,51 +81,67 @@ input[type=range]::-moz-range-track {
   color: var(--ink);
 }
 
-/* --------------------------------------------------------------- top strip */
-
-.topbar {
-  background: var(--navy);
-  color: rgba(255, 255, 255, 0.78);
-  font-size: 11.5px;
-  letter-spacing: 0.02em;
-  padding: 9px var(--gutter);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.topbar__right { display: flex; gap: 26px; }
-.topbar__phone { color: #fff; }
+/* Only the hero sits under the fixed masthead; every other view needs the
+   room back. The solid masthead measures 65px, so this leaves a little air. */
+body:not(.has-hero) #view { padding-top: 76px; }
 
 /* ----------------------------------------------------------------- masthead */
 
+/* Floats over the hero, then turns solid once the hero has scrolled past. */
 .masthead {
-  background: #fff;
-  border-bottom: 1px solid var(--line);
-  padding: 16px var(--gutter);
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  padding: 20px var(--gutter);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 50;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  transition: background 0.3s ease, border-color 0.3s ease, padding 0.3s ease;
 }
-.masthead__logo { cursor: pointer; display: flex; align-items: center; background: none; border: none; padding: 0; }
-.masthead__logo img { height: 50px; width: auto; }
+.masthead.is-solid {
+  background: #fff;
+  border-bottom-color: var(--line);
+  padding: 12px var(--gutter);
+}
 
-.masthead__nav { display: flex; gap: 32px; font-size: 13.5px; color: var(--ink); }
+.masthead__logo { cursor: pointer; display: flex; align-items: center; background: none; border: none; padding: 0; }
+.masthead__logo img {
+  height: 44px; width: auto;
+  filter: drop-shadow(0 1px 8px rgba(0, 20, 40, 0.55));
+  transition: height 0.3s ease, filter 0.3s ease;
+}
+.masthead.is-solid .masthead__logo img { height: 40px; filter: none; }
+
+/* Micro-type nav: small, letterspaced, quiet until hovered. */
+.masthead__nav { display: flex; gap: 34px; }
 .masthead__nav button {
   cursor: pointer;
   background: none;
   border: none;
   padding: 0;
-  font-size: 13.5px;
-  color: var(--ink);
+  font-family: var(--body);
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+  transition: color 0.2s ease;
 }
-.masthead__nav button:hover { color: var(--red); }
+.masthead__nav button:hover { color: #fff; }
+.masthead.is-solid .masthead__nav button { color: var(--slate); }
+.masthead.is-solid .masthead__nav button:hover { color: var(--red); }
 
-.masthead__actions { display: flex; align-items: center; gap: 18px; }
-.masthead__phone { font-size: 12.5px; color: var(--slate); }
-.masthead__phone:hover { color: var(--red); }
+.masthead__actions { display: flex; align-items: center; gap: 20px; }
+.masthead__phone {
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.62);
+}
+.masthead__phone:hover { color: #fff; }
+.masthead.is-solid .masthead__phone { color: var(--slate); }
+.masthead.is-solid .masthead__phone:hover { color: var(--red); }
+
+.masthead .btn--sm { font-size: 15px; padding: 10px 20px 7px; }
 
 /* Call button and hamburger. Hidden until the nav collapses. */
 .masthead__compact { display: none; align-items: center; gap: 6px; }
@@ -132,8 +149,9 @@ input[type=range]::-moz-range-track {
 .iconbtn {
   width: 40px; height: 40px;
   display: flex; align-items: center; justify-content: center;
-  color: var(--navy);
+  color: #fff;
 }
+.masthead.is-solid .iconbtn { color: var(--navy); }
 .iconbtn svg { width: 20px; height: 20px; fill: currentColor; }
 
 .burger {
@@ -145,8 +163,10 @@ input[type=range]::-moz-range-track {
 .burger span {
   display: block;
   width: 20px; height: 2px;
-  background: var(--navy);
+  background: #fff;
+  transition: background 0.3s ease;
 }
+.masthead.is-solid .burger span { background: var(--navy); }
 
 /* ------------------------------------------------------------------ buttons */
 
@@ -177,8 +197,10 @@ input[type=range]::-moz-range-track {
 
 .hero {
   position: relative;
-  height: 680px;
-  min-height: 560px;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 600px;
+  max-height: 1000px;
   overflow: hidden;
   background: var(--navy-deep);
   display: flex; align-items: center;
@@ -230,10 +252,13 @@ input[type=range]::-moz-range-track {
   padding-left: 0.42em;
 }
 .hero__title {
-  font-family: var(--display);
-  font-size: 92px; line-height: 0.92; letter-spacing: 0.01em;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(46px, 7.2vw, 104px);
+  line-height: 0.96;
+  letter-spacing: 0.01em;
   /* Wide enough that the <br /> in each headline is the only break. */
-  max-width: 20ch;
+  max-width: 24ch;
 }
 
 /* Hairline that fades out at both ends. */
@@ -1141,7 +1166,7 @@ body.is-drawer-open { overflow: hidden; }
 
 @media (max-width: 1180px) {
   :root { --gutter: 32px; }
-  .hero__title { font-size: 74px; }
+  /* .hero__title sizes itself with clamp(), no override needed. */
   .detail { grid-template-columns: 1fr 1fr; }
   .finance { grid-template-columns: 1fr 340px; }
 }
@@ -1149,7 +1174,6 @@ body.is-drawer-open { overflow: hidden; }
 @media (max-width: 980px) {
   /* The nav and the desktop actions move into the slide-in menu, leaving a
      short bar that can stay stuck to the top of the screen. */
-  .topbar { display: none; }
   .masthead { padding: 8px var(--gutter); gap: 12px; }
   .masthead__logo img { height: 38px; }
   .masthead__nav { display: none; }
@@ -1197,9 +1221,9 @@ body.is-drawer-open { overflow: hidden; }
   .card__specs { font-size: 11px; }
   .value__text, .howto__text { font-size: 12.5px; }
 
-  .hero { height: 520px; min-height: 0; }
+  /* Height stays full-page; only the type and spacing come down. */
+  .hero { min-height: 520px; }
   .hero__body { padding-bottom: 96px; }
-  .hero__title { font-size: 44px; max-width: 13ch; }
   .hero__eyebrow { font-size: 9.5px; letter-spacing: 0.32em; margin-bottom: 14px; }
   .hero__rule { width: 120px; margin-top: 20px; }
   .hero__short { font-size: 10.5px; letter-spacing: 0.2em; margin-top: 15px; }

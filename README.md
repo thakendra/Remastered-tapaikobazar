@@ -41,11 +41,22 @@ Everything lives on one page and swaps out `#view`:
 - **About** — the founding story, the six values, leadership, the 13-person team, the
   Auto Nepal press feature and showroom photographs.
 
-## The hero
+## The hero and masthead
 
-Centred rather than left aligned, taking its cues from nextgeninterior.com: a slow
-cross-fade between photographs, each one drifting from 1.08 to 1.0 over seven seconds,
-under a vertical scrim that is dark at the top and bottom and clear in the middle.
+Full page and centred, taking its cues from nextgeninterior.com: the hero is `100dvh`,
+the masthead floats over it, and a slow cross-fade runs between photographs, each one
+drifting from 1.08 to 1.0 over seven seconds, under a vertical scrim that is dark at the
+top and bottom and clear in the middle.
+
+The masthead is fixed and transparent over the hero — white letterspaced micro-type,
+the logo carrying a drop shadow so it reads against the photograph. Once the hero has
+scrolled past, `paintMasthead()` adds `.is-solid` and it becomes a white bar with slate
+type and a shorter logo. Views without a hero get `.is-solid` immediately, and
+`body:not(.has-hero) #view` reserves 76px so their content clears it.
+
+Headlines are set in **Instrument Serif**, the face the reference site uses; Bebas Neue
+still carries every other heading and Poppins the body. The old top strip is gone —
+its address and hours moved to the footer, its phone number into the masthead.
 
 The stack is eyebrow, headline, a hairline that fades out at both ends, one letterspaced
 line of copy, two bordered badges carrying the model and its price, then the buttons.

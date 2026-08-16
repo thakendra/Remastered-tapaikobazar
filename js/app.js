@@ -436,6 +436,18 @@
     if (heroTimer) { clearInterval(heroTimer); heroTimer = null; }
   }
 
+  /* The masthead floats over the hero and turns solid once past it. Views
+     without a hero get the solid treatment straight away. */
+  var masthead = document.querySelector('.masthead');
+
+  function paintMasthead() {
+    var hero = view.querySelector('[data-hero]');
+    var solid = !hero || window.scrollY > hero.offsetHeight - 90;
+    masthead.classList.toggle('is-solid', solid);
+  }
+
+  window.addEventListener('scroll', paintMasthead, { passive: true });
+
   /* The arrows are hidden on a phone, so the slider has to answer to a swipe. */
   function bindHeroSwipe() {
     var hero = view.querySelector('[data-hero]');
@@ -1442,11 +1454,13 @@
     stopHero();
     /* The detail view's sticky action bar needs room at the foot of the page. */
     document.body.classList.toggle('is-detail', state.view === 'detail');
+    document.body.classList.toggle('has-hero', state.view === 'browse');
     if (state.view === 'detail') mountDetail();
     else if (state.view === 'finance') mountFinance();
     else if (state.view === 'about') mountAbout();
     else if (state.view === 'store') mountStore();
     else mountBrowse();
+    paintMasthead();
   }
 
   function openVehicle(id) {
