@@ -5,6 +5,11 @@
 
   var view = document.getElementById('view');
 
+  /* #view is empty until this script runs, so the browser has nothing to
+     restore a scroll position against on refresh — it lands at the top, then
+     the page grows underneath and jumps. Take the wheel instead. */
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
   /* ------------------------------------------------------------- formatting */
 
   /* Lakh grouping: 41,99,000 rather than 4,199,000. */
@@ -381,7 +386,11 @@
               '</div>' +
               '<div class="hero__actions">' +
                 '<button class="btn btn--red btn--md" data-open="' + esc(v.id) + '">View details</button>' +
-                '<a href="#" class="btn btn--outline-light btn--md">Book a test ride</a>' +
+                (v.price != null
+                  ? '<button class="btn btn--outline-light btn--md" data-finance-for="' + esc(v.id) +
+                      '">Get finance</button>'
+                  : '<button class="btn btn--outline-light btn--md" data-open="' + esc(v.id) +
+                      '">Ask the price</button>') +
               '</div>' +
             '</div>' +
           '</div>';
@@ -766,7 +775,7 @@
           '</div>' +
         '</div>' +
         '<div class="drawer__foot navmenu__foot">' +
-          '<a href="#" class="btn btn--red btn--block">Book a test ride</a>' +
+          '<button class="btn btn--red btn--block" data-go-finance>Get finance</button>' +
           '<a href="https://wa.me/' + esc(CONTACT.whatsapp) + '" target="_blank" rel="noopener" ' +
             'class="btn btn--outline-navy btn--block">WhatsApp us</a>' +
         '</div>' +
@@ -1136,7 +1145,9 @@
             '<button class="btn btn--red btn--block" data-finance>' +
               (v.price != null ? 'Get finance on this' : 'Ask for the price') +
             '</button>' +
-            '<a href="#" class="btn btn--outline-navy btn--block">Book a test ride</a>' +
+            '<a href="https://wa.me/' + esc(CONTACT.whatsapp) + '?text=' +
+              encodeURIComponent('I am interested in the ' + v.name) + '" target="_blank" rel="noopener" ' +
+              'class="btn btn--outline-navy btn--block">Enquire on WhatsApp</a>' +
           '</div>' +
 
           (highlights.length
@@ -1476,6 +1487,19 @@
     toTop();
   }
 
+  function openFinance(id) {
+    var v = find(id);
+    if (!v || v.price == null) return;
+    state.view = 'finance';
+    state.vehicleId = id;
+    state.galleryIndex = 0;
+    state.step = 1;
+    state.docs = [];
+    state.finDown = v.down || Math.round(v.price * 0.25);
+    render();
+    toTop();
+  }
+
   function goBrowse() {
     state.view = 'browse';
     render();
@@ -1512,6 +1536,22 @@
 
     var store = e.target.closest('[data-go="store"]');
     if (store) { state.view = 'store'; render(); toTop(); return; }
+
+    /* Hero slide: straight into the calculator for that vehicle. */
+    var finFor = e.target.closest('[data-finance-for]');
+    if (finFor) { openFinance(finFor.getAttribute('data-finance-for')); return; }
+
+    /* Masthead and menu: no vehicle chosen yet, so go and pick one. */
+    if (e.target.closest('[data-go-finance]')) {
+      closeDrawers();
+      if (state.view !== 'browse') {
+        goBrowse();
+        setTimeout(function () { jump('sec-vans', 96); }, 60);
+      } else {
+        jump('sec-vans', 96);
+      }
+      return;
+    }
 
     var jumpTo = e.target.closest('[data-jump]');
     if (jumpTo) {

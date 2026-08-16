@@ -54,8 +54,9 @@ scrolled past, `paintMasthead()` adds `.is-solid` and it becomes a white bar wit
 type and a shorter logo. Views without a hero get `.is-solid` immediately, and
 `body:not(.has-hero) #view` reserves 76px so their content clears it.
 
-Headlines are set in **Instrument Serif**, the face the reference site uses; Bebas Neue
-still carries every other heading and Poppins the body. The old top strip is gone —
+Headings are set in **Instrument Serif**, the face the reference site uses. Bebas Neue
+keeps the numerals, buttons, badges and card names, where a condensed face still earns
+its place; Poppins carries the body. The old top strip is gone —
 its address and hours moved to the footer, its phone number into the masthead.
 
 The stack is eyebrow, headline, a hairline that fades out at both ends, one letterspaced
@@ -66,6 +67,17 @@ the `<br />` in each headline is the only line break.
 
 Slides live in `HERO_SLIDES` in `js/data.js`. `id` points at a catalogue entry, so the
 model name and price follow the catalogue rather than being retyped.
+
+## Calls to action
+
+"Get finance" is the site-wide call to action, financing being what the showroom is
+known for. In the masthead and the mobile menu it has no vehicle in context, so it sends
+you to the vans to pick one. On a hero slide it opens the calculator for that vehicle
+directly. On a vehicle page the primary is "Get finance on this" and the secondary is a
+WhatsApp enquiry pre-filled with the model name.
+
+The one place "Book a test ride" survives is the confirmation screen after an
+application, where it is the sensible next step.
 
 ## Two wheelers without a photograph
 
