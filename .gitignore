@@ -1,0 +1,15 @@
+# The previous site, kept locally as source material. It is its own git repo
+# (github.com/thakendra/repo-tapaikobazar), so committing it here would only
+# record a broken gitlink.
+tapaikobazar-main/
+
+# Machine-local Claude Code permissions. .claude/launch.json is tracked.
+.claude/settings.local.json
+
+# OS and editor junk
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp
+.vscode/
+.idea/
