@@ -21,10 +21,10 @@ Then open <http://localhost:5173>.
 | `index.html` | Page shell: top strip, masthead, view container, footer |
 | `css/styles.css` | All styling, tokens at the top of the file |
 | `js/data.js` | The catalogue — 77 vehicles, company content, financing defaults |
-| `js/app.js` | State and rendering for the four views |
+| `js/app.js` | State and rendering for the five views |
 | `assets/` | Logo, favicons, vehicle photographs and the team portraits |
 
-## The four views
+## The five views
 
 Everything lives on one page and swaps out `#view`:
 
