@@ -85,11 +85,14 @@ input[type=range]::-moz-range-track {
    room back. The solid masthead measures 65px, so this leaves a little air. */
 body:not(.has-hero) #view { padding-top: 76px; }
 
-/* Before the script runs #view is empty. Holding the hero's colour and height
-   there stops the page flashing light grey and then collapsing. */
+/* Before the script runs #view is empty. Without this the page collapses to
+   nothing on reload: the footer springs up under the masthead and the light
+   body colour flashes white behind it. Holding the hero's colour and full
+   height keeps the reload looking like the hero it is about to become, with
+   the logo standing in until the markup arrives. */
 #view:empty {
   min-height: 100vh;
-  background: var(--navy-deep);
+  background: var(--navy-deep) url('../assets/logo.png') center center / 150px auto no-repeat;
 }
 
 /* ----------------------------------------------------------------- masthead */
