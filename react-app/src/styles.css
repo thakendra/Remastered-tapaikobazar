@@ -21,7 +21,7 @@
 
   --display: 'Bebas Neue', sans-serif;
   --serif: 'Instrument Serif', Georgia, serif;
-  --poster: 'Anton', 'Bebas Neue', Impact, sans-serif;
+  --poster: 'Instrument Serif', Georgia, serif;
   --body: 'Poppins', sans-serif;
 
   --gutter: 48px;
@@ -311,14 +311,15 @@ body:not(.has-hero) #view { padding-top: 76px; }
 }
 .hero__title {
   font-family: var(--poster);
-  font-weight: 400; /* Anton ships one weight and it is already black */
-  font-size: clamp(44px, 8.2vw, 118px);
-  line-height: 0.94;
-  letter-spacing: 0.005em;
+  font-weight: 400; /* Instrument Serif ships one weight; the size carries it */
+  font-size: clamp(46px, 8.4vw, 122px);
+  line-height: 0.95;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
-  max-width: 15ch;
+  max-width: 17ch;
   text-wrap: balance;
 }
+
 
 /* Each word rises into place, a beat apart. */
 .hero__word {
