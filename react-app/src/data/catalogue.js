@@ -428,12 +428,6 @@ const HOW_TO_BUY = [
   ['Drive home', 'Sign the loan documents, clear the balance, and take the vehicle home. Most files finish in three working days.']
 ];
 
-const TESTIMONIALS = [
-  ['Bought a Kinglong 14 seater for my travel business. TapaikoBazar made the loan process so smooth. The staff was transparent about everything — no hidden charges!', 'Rajesh Tamang', 'Travel entrepreneur, Kathmandu'],
-  ['I exchanged my old Honda City for a Danfe EV van. Got a great valuation and the exchange bonus reduced my downpayment significantly. Highly recommended!', 'Sunita Shrestha', 'School van operator, Lalitpur'],
-  ['Best place to buy an EV scooter in Nepal. Got my Ecooter E3 with easy EMI. The 100km range is perfect for my daily commute. Saves me so much on petrol!', 'Bikash Pokhrel', 'IT professional, Kathmandu']
-];
-
 const COMPANY = {
   storyTitle: 'From an 81 square foot stall to 12,000 square feet',
   story: [
@@ -504,6 +498,6 @@ const EXCHANGE = {
 
 export {
   IMG, HERO_SLIDES, CATALOGUE, TWO_WHEELER_LIST, DOCS, TYPE_LABEL,
-  FINANCE_DEFAULTS, CONTACT, TRUST_STATS, HOW_TO_BUY, TESTIMONIALS,
+  FINANCE_DEFAULTS, CONTACT, TRUST_STATS, HOW_TO_BUY,
   COMPANY, EXCHANGE, vanTerms, specRows
 };

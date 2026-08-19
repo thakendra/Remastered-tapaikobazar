@@ -5,7 +5,7 @@ import Section from '../components/Section';
 import VehicleCard from '../components/VehicleCard';
 import { BrandPills, TypeChips, VanFilterBar } from '../components/Filters';
 import {
-  CONTACT, EXCHANGE, HOW_TO_BUY, TESTIMONIALS,
+  CONTACT, EXCHANGE, HOW_TO_BUY,
 } from '../data/catalogue';
 import { useFilters } from '../lib/filtersContext';
 import { ALL_CARS, ALL_TW, ALL_VANS } from '../lib/vehicles';
@@ -29,28 +29,6 @@ function HowToBuy() {
             <div className="howto__name">{name}</div>
             <p className="howto__text">{text}</p>
           </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function Testimonials() {
-  return (
-    <div className="voices">
-      <div className="voices__head">
-        <span className="panel__eyebrow">From the counter</span>
-        <h2 className="howto__title">What people say afterwards</h2>
-      </div>
-      <div className="voices__grid">
-        {TESTIMONIALS.map(([text, name, role]) => (
-          <figure className="voice" key={name}>
-            <blockquote className="voice__text">{text}</blockquote>
-            <figcaption className="voice__who">
-              <span className="voice__name">{name}</span>
-              <span className="voice__role">{role}</span>
-            </figcaption>
-          </figure>
         ))}
       </div>
     </div>
@@ -383,7 +361,6 @@ export default function Browse() {
       </div>
 
       <HowToBuy />
-      <Testimonials />
       <ExchangeAndVisit />
     </>
   );
