@@ -21,6 +21,7 @@
 
   --display: 'Bebas Neue', sans-serif;
   --serif: 'Instrument Serif', Georgia, serif;
+  --poster: 'Anton', 'Bebas Neue', Impact, sans-serif;
   --body: 'Poppins', sans-serif;
 
   --gutter: 48px;
@@ -309,21 +310,55 @@ body:not(.has-hero) #view { padding-top: 76px; }
   padding-left: 0.42em;
 }
 .hero__title {
-  font-family: var(--serif);
-  font-weight: 400;
-  font-size: clamp(42px, 6.4vw, 84px);
-  line-height: 0.96;
-  letter-spacing: 0.01em;
-  /* Wide enough that the <br /> in each headline is the only break. */
-  max-width: 24ch;
+  font-family: var(--poster);
+  font-weight: 400; /* Anton ships one weight and it is already black */
+  font-size: clamp(44px, 8.2vw, 118px);
+  line-height: 0.94;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  max-width: 15ch;
+  text-wrap: balance;
 }
+
+/* Each word rises into place, a beat apart. */
+.hero__word {
+  display: inline-block;
+  white-space: pre;
+  opacity: 0;
+  transform: translateY(0.42em);
+  animation: heroWord 0.8s cubic-bezier(0.16, 0.84, 0.28, 1) forwards;
+}
+
+@keyframes heroWord {
+  to { opacity: 1; transform: none; }
+}
+
+/* The vehicle block is keyed on the slide, so this replays on every change. */
+.hero__vehicle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: heroSwap 0.55s ease both;
+}
+
+@keyframes heroSwap {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
 
 /* Hairline that fades out at both ends. */
 .hero__rule {
   display: block;
-  width: 180px; height: 1px;
+  width: 180px; height: 2px;
   margin: 26px 0 0;
   background: linear-gradient(90deg, transparent, var(--red), transparent);
+  transform: scaleX(0);
+  animation: heroRule 0.7s cubic-bezier(0.16, 0.84, 0.28, 1) 0.5s forwards;
+}
+
+@keyframes heroRule {
+  to { transform: scaleX(1); }
 }
 
 .hero__short {
@@ -374,6 +409,11 @@ body:not(.has-hero) #view { padding-top: 76px; }
 
 @media (prefers-reduced-motion: reduce) {
   .hero__img, .hero__slide { transition-duration: 0.01ms; }
+  .hero__word, .hero__rule, .hero__vehicle {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
   .hero__scroll-fill { animation: none; }
 }
 

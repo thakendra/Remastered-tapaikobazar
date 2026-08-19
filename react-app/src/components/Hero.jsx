@@ -1,10 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HERO_SLIDES } from '../data/catalogue';
 import { findVehicle } from '../lib/vehicles';
 import { priceText } from '../lib/format';
 
 const INTERVAL = 5500;
+
+/* The showroom's own line, off the logo. It stays put while the vehicles
+   rotate under it, so the promise reads as constant rather than as a caption
+   on whichever van happens to be showing. */
+const HEADLINE = ['Buy,', 'Sell', 'and', 'Finance'];
 
 export default function Hero() {
   const [at, setAt] = useState(0);
@@ -48,6 +53,8 @@ export default function Hero() {
     step(dx < 0 ? 1 : -1);
   };
 
+  const slide = slides[at];
+
   const scrollToBrowse = () => {
     const el = document.getElementById('browse');
     if (el) window.scrollTo({ top: el.offsetTop - 80, behavior: 'smooth' });
@@ -55,58 +62,66 @@ export default function Hero() {
 
   return (
     <div className="hero" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+      {/* Photographs cross-fade; one scrim sits over the lot so two of them
+          never stack up and double-darken mid transition. */}
       <div className="hero__stage">
-        {slides.map((s, i) => {
-          const on = i === at;
-          return (
-            <div
-              key={s.id}
-              className={`hero__slide${on ? ' is-on' : ''}`}
-              aria-hidden={!on}
-            >
-              <img
-                className="hero__img"
-                src={s.v.img}
-                alt={s.v.name}
-                loading={i === 0 ? undefined : 'lazy'}
-              />
-              <div className="hero__scrim" />
-              <div className="hero__body">
-                <span className="hero__eyebrow">{s.eyebrow}</span>
-                <h1 className="hero__title">
-                  {s.titleLines.map((line, n) => (
-                    <span key={n}>
-                      {line}
-                      {n < s.titleLines.length - 1 ? <br /> : null}
-                    </span>
-                  ))}
-                </h1>
-                <span className="hero__rule" />
-                <p className="hero__short">{s.short}</p>
-                <div className="hero__meta">
-                  <span className="hero__badge">{s.v.name}</span>
-                  <span className="hero__badge hero__badge--price">
-                    {priceText(s.v, 'Price at the counter')}
-                  </span>
-                </div>
-                <div className="hero__actions">
-                  <Link className="btn btn--red btn--md" to={`/vehicle/${s.v.id}`}>
-                    View details
-                  </Link>
-                  {s.v.price != null ? (
-                    <Link className="btn btn--outline-light btn--md" to={`/finance/${s.v.id}`}>
-                      Get finance
-                    </Link>
-                  ) : (
-                    <Link className="btn btn--outline-light btn--md" to={`/vehicle/${s.v.id}`}>
-                      Ask the price
-                    </Link>
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        })}
+        {slides.map((s, i) => (
+          <div
+            key={s.id}
+            className={`hero__slide${i === at ? ' is-on' : ''}`}
+            aria-hidden={i !== at}
+          >
+            <img
+              className="hero__img"
+              src={s.v.img}
+              alt={s.v.name}
+              loading={i === 0 ? undefined : 'lazy'}
+            />
+          </div>
+        ))}
+      </div>
+      <div className="hero__scrim" />
+
+      <div className="hero__body">
+        <h1 className="hero__title">
+          {HEADLINE.map((word, i) => (
+            <Fragment key={word}>
+              <span className="hero__word" style={{ animationDelay: `${0.14 + i * 0.09}s` }}>
+                {word}
+              </span>
+              {/* A real space, so the line reads as words rather than one
+                  run-together string when copied or read aloud. */}
+              {i < HEADLINE.length - 1 ? ' ' : null}
+            </Fragment>
+          ))}
+        </h1>
+        <span className="hero__rule" />
+
+        {/* Keyed on the slide so React remounts it and the entrance replays. */}
+        <div className="hero__vehicle" key={slide.id}>
+          <span className="hero__eyebrow">{slide.eyebrow}</span>
+          <p className="hero__short">{slide.short}</p>
+          <div className="hero__meta">
+            <span className="hero__badge">{slide.v.name}</span>
+            <span className="hero__badge hero__badge--price">
+              {priceText(slide.v, 'Price at the counter')}
+            </span>
+          </div>
+          <div className="hero__actions">
+            <Link className="btn btn--red btn--md" to={`/vehicle/${slide.v.id}`}>
+              View details
+            </Link>
+            {slide.v.price != null ? (
+              <Link className="btn btn--outline-light btn--md" to={`/finance/${slide.v.id}`}>
+                Get finance
+              </Link>
+            ) : (
+              <Link className="btn btn--outline-light btn--md" to={`/vehicle/${slide.v.id}`}>
+                Ask the price
+              </Link>
+            )}
+          </div>
+        </div>
       </div>
 
       <button
