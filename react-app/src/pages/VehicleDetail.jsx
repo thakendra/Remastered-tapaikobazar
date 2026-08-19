@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Shot from '../components/Shot';
-import { CATALOGUE, CONTACT, FINANCE_DEFAULTS } from '../data/catalogue';
+import { CATALOGUE, CONTACT } from '../data/catalogue';
 import { findVehicle } from '../lib/vehicles';
-import { emi, npr, priceText } from '../lib/format';
+import { priceText } from '../lib/format';
 
 export default function VehicleDetail() {
   const { id } = useParams();
@@ -31,17 +31,11 @@ export default function VehicleDetail() {
     );
   }
 
-  const isVan = v.type === 'van';
   const shots = (v.gallery && v.gallery.length ? v.gallery : [v.img]).filter(Boolean);
   const mainImg = shots[shotAt] || v.img;
   const highlights = v.highlights || [];
 
   const related = CATALOGUE.filter((x) => x.type === v.type && x.id !== v.id).slice(0, 3);
-
-  const emiLabel = isVan ? 'From, per month' : v.status ? 'Status' : 'EMI';
-  const emiValue = isVan
-    ? 'NPR ' + npr(emi(v.price - v.down, FINANCE_DEFAULTS.interestRate, FINANCE_DEFAULTS.vanTermMonths))
-    : v.status || 'Available';
 
   return (
     <>
@@ -101,43 +95,38 @@ export default function VehicleDetail() {
           {v.blurb ? <p className="detail__blurb">{v.blurb}</p> : null}
 
           <div className="pricebox">
-            <div className="pricebox__row pricebox__row--top">
+            <div className="pricebox__row">
               <span className="pricebox__label">Showroom price</span>
               <span className="pricebox__value">{priceText(v, 'Ask at the counter')}</span>
-            </div>
-            <div className="pricebox__row pricebox__row--bottom">
-              <span className="pricebox__label">{emiLabel}</span>
-              <span className="pricebox__value pricebox__value--emi">{emiValue}</span>
             </div>
           </div>
 
           <div className="detail__cta">
-            {v.price != null ? (
-              <Link className="btn btn--red btn--block" to={`/finance/${v.id}`}>
-                Get finance on this
-              </Link>
-            ) : (
-              <a
-                className="btn btn--red btn--block"
-                href={`https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(
-                  'What is the price of the ' + v.name + '?'
-                )}`}
-                target="_blank"
-                rel="noopener"
-              >
-                Ask for the price
-              </a>
-            )}
             <a
+              className="btn btn--red btn--block"
               href={`https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(
-                'I am interested in the ' + v.name
+                `I want to book the ${v.name}. Please tell me the next step.`
               )}`}
               target="_blank"
               rel="noopener"
-              className="btn btn--outline-navy btn--block"
             >
-              Enquire on WhatsApp
+              Book now
             </a>
+            <a
+              className="btn btn--outline-navy btn--block"
+              href={`https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(
+                `I have a question about the ${v.name}.`
+              )}`}
+              target="_blank"
+              rel="noopener"
+            >
+              WhatsApp enquiry
+            </a>
+            {v.price != null ? (
+              <Link className="btn btn--outline-navy btn--block" to={`/finance/${v.id}`}>
+                Apply finance
+              </Link>
+            ) : null}
           </div>
 
           {highlights.length ? (
@@ -164,9 +153,7 @@ export default function VehicleDetail() {
                   </span>
                   <span className="related__meta">
                     <span className="related__name">{r.name}</span>
-                    <span className="related__price">
-                      {priceText(r, 'Price at the counter')}
-                    </span>
+                    <span className="related__price">{r.brand}</span>
                   </span>
                 </Link>
               ))}
@@ -183,7 +170,7 @@ export default function VehicleDetail() {
         </div>
         {v.price != null ? (
           <Link className="btn btn--red actionbar__cta" to={`/finance/${v.id}`}>
-            Get finance
+            Apply finance
           </Link>
         ) : (
           <a

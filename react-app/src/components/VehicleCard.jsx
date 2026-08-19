@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { TYPE_LABEL } from '../data/catalogue';
-import { priceText, seatLabel } from '../lib/format';
+import { seatLabel } from '../lib/format';
 import Shot from './Shot';
 
 /* A real anchor, not a button that navigates. That buys open-in-new-tab,
@@ -24,8 +24,7 @@ export default function VehicleCard({ vehicle: v }) {
         <div className="card__name">{v.name}</div>
         <div className="card__specs">{quick}</div>
         <div className="card__foot">
-          <div className="card__price">{priceText(v, 'Price at the counter')}</div>
-          <div className="card__sub">{v.status || 'EMI financing available'}</div>
+          <span className="card__cue">{v.status || 'View details'}</span>
         </div>
       </div>
     </Link>

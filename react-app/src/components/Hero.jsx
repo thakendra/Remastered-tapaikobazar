@@ -2,7 +2,6 @@ import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HERO_SLIDES } from '../data/catalogue';
 import { findVehicle } from '../lib/vehicles';
-import { priceText } from '../lib/format';
 
 const INTERVAL = 5500;
 
@@ -105,9 +104,6 @@ export default function Hero() {
           <span className="hero__eyebrow">{slide.eyebrow}</span>
           <div className="hero__meta">
             <span className="hero__badge">{slide.v.name}</span>
-            <span className="hero__badge hero__badge--price">
-              {priceText(slide.v, 'Price at the counter')}
-            </span>
           </div>
           <div className="hero__actions">
             <Link className="btn btn--red btn--md" to={`/vehicle/${slide.v.id}`}>
