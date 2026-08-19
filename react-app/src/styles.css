@@ -324,9 +324,10 @@ body:not(.has-hero) #view { padding-top: 76px; }
   position: absolute; inset: 0;
   z-index: 2;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  /* Foot padding keeps the stack clear of the dots and the scroll cue however
+  /* Head padding clears the fixed masthead so the headline never crowds the
+     nav; foot padding keeps the stack off the dots and the scroll cue however
      many lines the headline runs to. */
-  padding: 0 var(--gutter) 128px;
+  padding: 104px var(--gutter) 128px;
   text-align: center;
   color: #fff;
 }
@@ -394,13 +395,6 @@ body:not(.has-hero) #view { padding-top: 76px; }
   to { transform: scaleX(1); }
 }
 
-.hero__short {
-  font-size: 12px; font-weight: 300;
-  letter-spacing: 0.28em; text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.66);
-  margin-top: 20px;
-  padding-left: 0.28em;
-}
 
 .hero__meta { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 26px; }
 .hero__badge {
@@ -1406,7 +1400,6 @@ body.is-drawer-open { overflow: hidden; }
   .hero__body { padding-bottom: 96px; }
   .hero__eyebrow { font-size: 9.5px; letter-spacing: 0.32em; margin-bottom: 14px; }
   .hero__rule { width: 120px; margin-top: 20px; }
-  .hero__short { font-size: 10.5px; letter-spacing: 0.2em; margin-top: 15px; }
   .hero__meta { margin-top: 20px; gap: 8px; }
   .hero__badge { font-size: 9px; padding: 6px 11px 5px; }
   .hero__actions { flex-wrap: wrap; gap: 10px; margin-top: 24px; }

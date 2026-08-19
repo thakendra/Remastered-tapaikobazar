@@ -103,7 +103,6 @@ export default function Hero() {
         {/* Keyed on the slide so React remounts it and the entrance replays. */}
         <div className="hero__vehicle" key={slide.id}>
           <span className="hero__eyebrow">{slide.eyebrow}</span>
-          <p className="hero__short">{slide.short}</p>
           <div className="hero__meta">
             <span className="hero__badge">{slide.v.name}</span>
             <span className="hero__badge hero__badge--price">

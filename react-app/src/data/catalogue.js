@@ -55,20 +55,15 @@ const IMG = {
 /* The hero slider. id points at a CATALOGUE entry, so the price and the
    "view details" link follow the catalogue rather than being retyped. */
 const HERO_SLIDES = [
-  { id: 'kyc11', eyebrow: 'Electric vans',
-    short: 'Nepal’s most affordable electric van' },
+  { id: 'kyc11', eyebrow: 'Electric vans' },
 
-  { id: 'king16', eyebrow: 'The big one',
-    short: 'The van tour operators ask for' },
+  { id: 'king16', eyebrow: 'The big one' },
 
-  { id: 'g6', eyebrow: 'Electric cars',
-    short: 'Five star Euro NCAP · eight year battery' },
+  { id: 'g6', eyebrow: 'Electric cars' },
 
-  { id: 'dfacEm26', eyebrow: 'On our floor now',
-    short: 'Parked on the floor today' },
+  { id: 'dfacEm26', eyebrow: 'On our floor now' },
 
-  { id: 'e3g', eyebrow: 'Electric scooters',
-    short: 'Cruise control · keyless · 1500W' }
+  { id: 'e3g', eyebrow: 'Electric scooters' }
 ];
 
 /* Every van is financed on the same terms, so the tail of the spec table is
