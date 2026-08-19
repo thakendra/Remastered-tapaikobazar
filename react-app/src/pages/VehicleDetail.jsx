@@ -1,0 +1,188 @@
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import Shot from '../components/Shot';
+import { CATALOGUE, CONTACT, FINANCE_DEFAULTS } from '../data/catalogue';
+import { findVehicle } from '../lib/vehicles';
+import { emi, npr, priceText } from '../lib/format';
+
+export default function VehicleDetail() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const v = findVehicle(id);
+  const [shotAt, setShotAt] = useState(0);
+
+  useEffect(() => setShotAt(0), [id]);
+
+  /* Mobile only: the sticky bar needs room at the foot of the page. */
+  useEffect(() => {
+    document.body.classList.add('is-detail');
+    return () => document.body.classList.remove('is-detail');
+  }, []);
+
+  if (!v) {
+    return (
+      <div className="grid-wrap">
+        <div className="empty">
+          <div className="empty__title">We do not stock that one</div>
+          <p className="empty__note">
+            <Link to="/">Back to browsing</Link>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const isVan = v.type === 'van';
+  const shots = (v.gallery && v.gallery.length ? v.gallery : [v.img]).filter(Boolean);
+  const mainImg = shots[shotAt] || v.img;
+  const highlights = v.highlights || [];
+
+  const related = CATALOGUE.filter((x) => x.type === v.type && x.id !== v.id).slice(0, 3);
+
+  const emiLabel = isVan ? 'From, per month' : v.status ? 'Status' : 'EMI';
+  const emiValue = isVan
+    ? 'NPR ' + npr(emi(v.price - v.down, FINANCE_DEFAULTS.interestRate, FINANCE_DEFAULTS.vanTermMonths))
+    : v.status || 'Available';
+
+  return (
+    <>
+      <div className="crumbs">
+        <button onClick={() => navigate('/')}>Browse</button>
+        <span>/</span>
+        <span>{v.brand}</span>
+        <span>/</span>
+        <span className="crumbs__here">{v.name}</span>
+      </div>
+
+      <div className="detail">
+        <div className="detail__left">
+          <div className="detail__hero">
+            <Shot vehicle={v} src={mainImg} loading="eager" />
+          </div>
+
+          {shots.length > 1 ? (
+            <div className="detail__thumbs">
+              {shots.map((src, i) => (
+                <button
+                  key={src}
+                  className={`detail__thumb${i === shotAt ? ' is-on' : ''}`}
+                  onClick={() => setShotAt(i)}
+                >
+                  <img src={src} alt={v.name} />
+                </button>
+              ))}
+            </div>
+          ) : null}
+
+          <div className="detail__caption">Showroom photographs, Panipokhari.</div>
+
+          <h2 className="detail__h2">Specification</h2>
+          <div className="spectable">
+            {v.specs.map(([label, value]) => (
+              <div className="spectable__row" key={label + value}>
+                <span className="spectable__label">{label}</span>
+                <span className="spectable__value">{value}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="visitnote">
+            <div className="visitnote__title">See it at Panipokhari</div>
+            <p>
+              This one is on the floor right now. Opposite NIMB Bank, Sunday to Friday
+              9am to 7pm. Ask for a test drive at the counter — no appointment needed,
+              though a slot saves you the wait.
+            </p>
+          </div>
+        </div>
+
+        <div className="detail__right">
+          <div className="detail__brand">{v.brand}</div>
+          <h1 className="detail__name">{v.name}</h1>
+          {v.blurb ? <p className="detail__blurb">{v.blurb}</p> : null}
+
+          <div className="pricebox">
+            <div className="pricebox__row pricebox__row--top">
+              <span className="pricebox__label">Showroom price</span>
+              <span className="pricebox__value">{priceText(v, 'Ask at the counter')}</span>
+            </div>
+            <div className="pricebox__row pricebox__row--bottom">
+              <span className="pricebox__label">{emiLabel}</span>
+              <span className="pricebox__value pricebox__value--emi">{emiValue}</span>
+            </div>
+          </div>
+
+          <div className="detail__cta">
+            <button
+              className="btn btn--red btn--block"
+              onClick={() => v.price != null && navigate(`/finance/${v.id}`)}
+            >
+              {v.price != null ? 'Get finance on this' : 'Ask for the price'}
+            </button>
+            <a
+              href={`https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(
+                'I am interested in the ' + v.name
+              )}`}
+              target="_blank"
+              rel="noopener"
+              className="btn btn--outline-navy btn--block"
+            >
+              Enquire on WhatsApp
+            </a>
+          </div>
+
+          {highlights.length ? (
+            <div className="detail__block">
+              <div className="detail__block-label">Why people buy this one</div>
+              <div className="highlights">
+                {highlights.map((h) => (
+                  <div className="highlight" key={h}>
+                    <span className="highlight__dot" />
+                    <span className="highlight__text">{h}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          <div className="detail__block">
+            <div className="detail__block-label">Also worth a look</div>
+            <div className="related">
+              {related.map((r) => (
+                <button
+                  className="related__item"
+                  key={r.id}
+                  onClick={() => navigate(`/vehicle/${r.id}`)}
+                >
+                  <span className="related__shot">
+                    <Shot vehicle={r} />
+                  </span>
+                  <span className="related__meta">
+                    <span className="related__name">{r.name}</span>
+                    <span className="related__price">
+                      {priceText(r, 'Price at the counter')}
+                    </span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Narrow screens only: keeps the price and the next step in reach. */}
+      <div className="actionbar">
+        <div className="actionbar__price">
+          <span className="actionbar__label">Showroom price</span>
+          <span className="actionbar__value">{priceText(v, 'Ask at the counter')}</span>
+        </div>
+        <button
+          className="btn btn--red actionbar__cta"
+          onClick={() => v.price != null && navigate(`/finance/${v.id}`)}
+        >
+          {v.price != null ? 'Get finance' : 'Ask the price'}
+        </button>
+      </div>
+    </>
+  );
+}

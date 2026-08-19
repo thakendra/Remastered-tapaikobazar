@@ -6,6 +6,12 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "5173"],
       "port": 5173
+    },
+    {
+      "name": "tapaikobazar-react",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "react-app", "run", "dev", "--", "--port", "5174"],
+      "port": 5174
     }
   ]
 }
