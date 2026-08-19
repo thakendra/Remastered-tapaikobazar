@@ -5,25 +5,12 @@ import Section from '../components/Section';
 import VehicleCard from '../components/VehicleCard';
 import { BrandPills, TypeChips, VanFilterBar } from '../components/Filters';
 import {
-  CONTACT, EXCHANGE, HOW_TO_BUY, TESTIMONIALS, TRUST_STATS,
+  CONTACT, EXCHANGE, HOW_TO_BUY, TESTIMONIALS,
 } from '../data/catalogue';
 import { useFilters } from '../lib/filtersContext';
 import { ALL_CARS, ALL_TW, ALL_VANS } from '../lib/vehicles';
 import { TW_PREVIEW, npr } from '../lib/format';
 import { MAKES, YEARS, cleanMobile, estimateExchange, isMobile } from '../lib/forms';
-
-function Stats() {
-  return (
-    <div className="stats">
-      {TRUST_STATS.map(([figure, label]) => (
-        <div className="stats__cell" key={label}>
-          <div className="stats__figure">{figure}</div>
-          <div className="stats__label">{label}</div>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 function HowToBuy() {
   return (
@@ -293,7 +280,6 @@ export default function Browse() {
   return (
     <>
       <Hero />
-      <Stats />
 
       <div id="browse">
         <Section
