@@ -1,18 +1,17 @@
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { BrandPills, TypeChips } from '../components/Filters';
 import VehicleCard from '../components/VehicleCard';
 import { useFilters } from '../lib/filtersContext';
 import { ALL_TW } from '../lib/vehicles';
 
 export default function TwoWheelerStore() {
-  const navigate = useNavigate();
   const f = useFilters();
   const results = f.twSorted;
 
   return (
     <>
       <div className="crumbs">
-        <button onClick={() => navigate('/')}>Browse</button>
+        <Link to="/">Browse</Link>
         <span>/</span>
         <span className="crumbs__here">Two wheelers</span>
       </div>

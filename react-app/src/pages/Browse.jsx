@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Hero from '../components/Hero';
 import Section from '../components/Section';
 import VehicleCard from '../components/VehicleCard';
@@ -9,7 +9,8 @@ import {
 } from '../data/catalogue';
 import { useFilters } from '../lib/filtersContext';
 import { ALL_CARS, ALL_TW, ALL_VANS } from '../lib/vehicles';
-import { TW_PREVIEW } from '../lib/format';
+import { TW_PREVIEW, npr } from '../lib/format';
+import { MAKES, YEARS, cleanMobile, estimateExchange, isMobile } from '../lib/forms';
 
 function Stats() {
   return (
@@ -70,95 +71,222 @@ function Testimonials() {
 }
 
 function ExchangeAndVisit() {
-  const times = ['Within a week', 'Within a month', 'In two months', 'After six months'];
   return (
-    <div className="twoup">
-      <div className="panel panel--white">
-        <span className="panel__eyebrow">{EXCHANGE.title}</span>
-        <h2 className="panel__title">Your old vehicle counts toward the down</h2>
-        <p className="panel__lede panel__lede--narrow">{EXCHANGE.lede}</p>
-        <div className="exchange__points">
-          {EXCHANGE.points.map(([name, note]) => (
-            <div className="exchange__point" key={name}>
-              <span className="exchange__point-name">{name}</span>
-              <span className="exchange__point-note">{note}</span>
-            </div>
-          ))}
-        </div>
-        <div className="exchange__form">
-          <select className="field" aria-label="Make" defaultValue="Make — Honda">
-            <option>Make — Honda</option>
-            <option>Toyota</option>
-            <option>Hyundai</option>
-            <option>Suzuki</option>
-          </select>
-          <select className="field" aria-label="Year" defaultValue="Year — 2018">
-            <option>Year — 2018</option>
-            <option>2020</option>
-            <option>2015</option>
-          </select>
-          <input type="text" className="field" placeholder="Kilometres driven" />
-          <a href="#" className="btn btn--navy exchange__submit">Estimate</a>
-        </div>
-        <div className="exchange__result">
-          <div className="exchange__result-label">Estimated range</div>
-          <div className="exchange__range">NPR 8,20,000 – 9,60,000</div>
-        </div>
+    <div className="twoup" id="exchange">
+      <ExchangePanel />
+      <VisitPanel />
+    </div>
+  );
+}
+
+/* Was three inputs and an anchor to "#" printing one hardcoded range. Now the
+   estimate answers what you type, and the counter still has the final word. */
+function ExchangePanel() {
+  const [make, setMake] = useState(MAKES[0]);
+  const [year, setYear] = useState(String(YEARS[6]));
+  const [km, setKm] = useState('');
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState('');
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    const kms = Number(km);
+    if (km.trim() === '' || !Number.isFinite(kms) || kms < 0) {
+      setError('Enter the kilometres driven, as a number.');
+      setResult(null);
+      return;
+    }
+    if (kms > 500000) {
+      setError('That looks too high — check the odometer reading.');
+      setResult(null);
+      return;
+    }
+    setError('');
+    setResult(estimateExchange({ make, year, km: kms }));
+  };
+
+  return (
+    <div className="panel panel--white">
+      <span className="panel__eyebrow">{EXCHANGE.title}</span>
+      <h2 className="panel__title">Your old vehicle counts toward the down</h2>
+      <p className="panel__lede panel__lede--narrow">{EXCHANGE.lede}</p>
+      <div className="exchange__points">
+        {EXCHANGE.points.map(([name, note]) => (
+          <div className="exchange__point" key={name}>
+            <span className="exchange__point-name">{name}</span>
+            <span className="exchange__point-note">{note}</span>
+          </div>
+        ))}
       </div>
 
-      <div className="panel">
-        <span className="panel__eyebrow">Visit</span>
-        <h2 className="panel__title">Pick a slot, we will keep it ready</h2>
-        <p className="panel__lede panel__lede--narrower">
-          Tell us when you are planning to buy and we will have the vehicle charged,
-          cleaned and ready when you come in.
-        </p>
-        <div className="visit__legend">When are you planning to buy</div>
-        <VisitTimes options={times} />
-        <div className="visit__signup">
-          <input type="tel" className="field" placeholder="Your phone number" />
-          <a href="#" className="btn btn--red visit__confirm">Confirm</a>
+      <form className="exchange__form" onSubmit={onSubmit} noValidate>
+        <label className="field-wrap">
+          <span className="field-label">Make</span>
+          <select className="field" value={make} onChange={(e) => setMake(e.target.value)}>
+            {MAKES.map((m) => <option key={m}>{m}</option>)}
+          </select>
+        </label>
+        <label className="field-wrap">
+          <span className="field-label">Year</span>
+          <select className="field" value={year} onChange={(e) => setYear(e.target.value)}>
+            {YEARS.map((y) => <option key={y}>{y}</option>)}
+          </select>
+        </label>
+        <label className="field-wrap">
+          <span className="field-label">Kilometres driven</span>
+          <input
+            type="text"
+            inputMode="numeric"
+            className="field"
+            placeholder="e.g. 42000"
+            value={km}
+            onChange={(e) => setKm(e.target.value)}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? 'exchange-error' : undefined}
+          />
+        </label>
+        <button type="submit" className="btn btn--navy exchange__submit">Estimate</button>
+      </form>
+
+      {error ? (
+        <p className="formnote formnote--bad" id="exchange-error" role="alert">{error}</p>
+      ) : null}
+
+      <div className="exchange__result">
+        <div className="exchange__result-label">Estimated range</div>
+        <div className="exchange__range">
+          {result ? `NPR ${npr(result.low)} – ${npr(result.high)}` : 'Fill the three fields'}
         </div>
-        <div className="visit__address">
-          <div className="visit__line"><span>Showroom</span>{CONTACT.address}</div>
-          <div className="visit__line"><span>Open</span>{CONTACT.hours}</div>
-          <div className="visit__line">
-            <span>Landline</span>
-            {CONTACT.landlines.map((n, i) => (
-              <span key={n}>{i > 0 ? ' · ' : ''}<a href={`tel:${n}`}>{n}</a></span>
-            ))}
-          </div>
-          <div className="visit__line">
-            <span>Mobile</span>
-            {CONTACT.mobiles.map((n, i) => (
-              <span key={n}>{i > 0 ? ' · ' : ''}<a href={`tel:${n}`}>{n}</a></span>
-            ))}
-          </div>
-        </div>
+        {result ? (
+          <p className="formnote">
+            Indicative only. Bring it to Panipokhari and the counter confirms the same
+            day, then applies it to your downpayment.
+          </p>
+        ) : null}
       </div>
     </div>
   );
 }
 
-function VisitTimes({ options }) {
-  const [picked, setPicked] = useState(options[0]);
+/* Confirm used to be an anchor to "#": it scrolled you to the top of the page
+   and threw the number away. */
+function VisitPanel() {
+  const times = ['Within a week', 'Within a month', 'In two months', 'After six months'];
+  const [when, setWhen] = useState(times[0]);
+  const [phone, setPhone] = useState('');
+  const [error, setError] = useState('');
+  const [sent, setSent] = useState(false);
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    if (!isMobile(phone)) {
+      setError('Enter a ten digit mobile starting 98 or 97.');
+      return;
+    }
+    setError('');
+    setSent(true);
+  };
+
+  const waText = encodeURIComponent(
+    `Hello TapaikoBazar, I am planning to buy ${when.toLowerCase()}. My number is ${cleanMobile(phone)}.`
+  );
+
   return (
-    <div className="visit__times">
-      {options.map((t) => (
-        <button
-          key={t}
-          className={`visit__time${picked === t ? ' is-on' : ''}`}
-          onClick={() => setPicked(t)}
-        >
-          {t}
-        </button>
-      ))}
+    <div className="panel">
+      <span className="panel__eyebrow">Visit</span>
+      <h2 className="panel__title">Pick a slot, we will keep it ready</h2>
+      <p className="panel__lede panel__lede--narrower">
+        Tell us when you are planning to buy and we will have the vehicle charged,
+        cleaned and ready when you come in.
+      </p>
+
+      {sent ? (
+        <div className="formdone" role="status">
+          <div className="formdone__tick">✓</div>
+          <div>
+            <p className="formdone__title">
+              Noted — {when.toLowerCase()}, on {cleanMobile(phone)}.
+            </p>
+            <p className="formdone__note">
+              The counter calls between 9am and 7pm. Want it faster? Send the same
+              details on WhatsApp.
+            </p>
+            <div className="formdone__actions">
+              <a
+                className="btn btn--red"
+                href={`https://wa.me/${CONTACT.whatsapp}?text=${waText}`}
+                target="_blank"
+                rel="noopener"
+              >
+                Send on WhatsApp
+              </a>
+              <button
+                type="button"
+                className="linkbtn"
+                onClick={() => { setSent(false); setPhone(''); }}
+              >
+                Use a different number
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="visit__legend" id="visit-when">When are you planning to buy</div>
+          <div className="visit__times" role="group" aria-labelledby="visit-when">
+            {times.map((t) => (
+              <button
+                type="button"
+                key={t}
+                className={`visit__time${when === t ? ' is-on' : ''}`}
+                aria-pressed={when === t}
+                onClick={() => setWhen(t)}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+
+          <form className="visit__signup" onSubmit={onSubmit} noValidate>
+            <input
+              type="tel"
+              className="field"
+              placeholder="Your phone number"
+              aria-label="Your phone number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? 'visit-error' : undefined}
+            />
+            <button type="submit" className="btn btn--red visit__confirm">Confirm</button>
+          </form>
+          {error ? (
+            <p className="formnote formnote--bad" id="visit-error" role="alert">{error}</p>
+          ) : null}
+        </>
+      )}
+
+      <div className="visit__address">
+        <div className="visit__line"><span>Showroom</span>{CONTACT.address}</div>
+        <div className="visit__line"><span>Open</span>{CONTACT.hours}</div>
+        <div className="visit__line">
+          <span>Landline</span>
+          {CONTACT.landlines.map((n, i) => (
+            <span key={n}>{i > 0 ? ' · ' : ''}<a href={`tel:${n}`}>{n}</a></span>
+          ))}
+        </div>
+        <div className="visit__line">
+          <span>Mobile</span>
+          {CONTACT.mobiles.map((n, i) => (
+            <span key={n}>{i > 0 ? ' · ' : ''}<a href={`tel:${n}`}>{n}</a></span>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
 
 export default function Browse() {
-  const navigate = useNavigate();
   const f = useFilters();
   const twShown = f.tw.slice(0, TW_PREVIEW);
 
@@ -256,14 +384,14 @@ export default function Browse() {
             <div className="cardgrid">
               {twShown.map((v) => <VehicleCard key={v.id} vehicle={v} />)}
             </div>
-            <button className="browseall" onClick={() => navigate('/two-wheelers')}>
+            <Link className="browseall" to="/two-wheelers">
               <span className="browseall__label">Browse all two wheelers</span>
               <span className="browseall__count">
                 {f.tw.length > TW_PREVIEW
                   ? `Showing ${TW_PREVIEW} of ${f.tw.length}`
                   : `All ${f.tw.length} shown`}
               </span>
-            </button>
+            </Link>
           </div>
         </Section>
       </div>

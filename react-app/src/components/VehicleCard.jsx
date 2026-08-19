@@ -1,10 +1,12 @@
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { TYPE_LABEL } from '../data/catalogue';
 import { priceText, seatLabel } from '../lib/format';
 import Shot from './Shot';
 
+/* A real anchor, not a button that navigates. That buys open-in-new-tab,
+   copy-link-address, the status bar URL preview, "link" rather than "button"
+   in a screen reader, and a crawlable path to all 77 vehicles. */
 export default function VehicleCard({ vehicle: v }) {
-  const navigate = useNavigate();
   const isVan = v.type === 'van';
 
   const quick = isVan
@@ -12,7 +14,7 @@ export default function VehicleCard({ vehicle: v }) {
     : v.specs.slice(0, 3).map((x) => x[1]).join(' · ');
 
   return (
-    <button className="card" onClick={() => navigate(`/vehicle/${v.id}`)}>
+    <Link className="card" to={`/vehicle/${v.id}`}>
       <div className="card__shot">
         <Shot vehicle={v} />
         <span className="card__tag">{TYPE_LABEL[v.type]}</span>
@@ -26,6 +28,6 @@ export default function VehicleCard({ vehicle: v }) {
           <div className="card__sub">{v.status || 'EMI financing available'}</div>
         </div>
       </div>
-    </button>
+    </Link>
   );
 }

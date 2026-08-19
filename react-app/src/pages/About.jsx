@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { COMPANY, TRUST_STATS } from '../data/catalogue';
 
 function initials(name) {
@@ -17,13 +17,12 @@ function Face({ name, img, cls }) {
 }
 
 export default function About() {
-  const navigate = useNavigate();
   const c = COMPANY;
 
   return (
     <>
       <div className="crumbs">
-        <button onClick={() => navigate('/')}>Browse</button>
+        <Link to="/">Browse</Link>
         <span>/</span>
         <span className="crumbs__here">About us</span>
       </div>

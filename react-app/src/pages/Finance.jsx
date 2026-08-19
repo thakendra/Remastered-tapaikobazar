@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import Shot from '../components/Shot';
-import { DOCS, FINANCE_DEFAULTS } from '../data/catalogue';
+import { CONTACT, DOCS, FINANCE_DEFAULTS } from '../data/catalogue';
 import { findVehicle } from '../lib/vehicles';
 import { emi, npr, priceText, termText } from '../lib/format';
+import { cleanMobile, isMobile } from '../lib/forms';
 
 const STEPS = [
   ['Step one', 'Set your terms'],
@@ -13,11 +14,31 @@ const STEPS = [
 
 export default function Finance() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const v = findVehicle(id);
 
   const [step, setStep] = useState(1);
   const [docs, setDocs] = useState([]);
+  const [who, setWho] = useState({
+    name: '',
+    phone: '',
+    work: 'Salaried',
+    income: '50,000 to 1,00,000',
+    district: '',
+    bank: 'No preference',
+  });
+  const [errors, setErrors] = useState({});
+
+  /* Step two used to wave everything through, so a file could reach the
+     counter with no name and no number on it. */
+  const submitApplicant = (e) => {
+    e.preventDefault();
+    const next = {};
+    if (who.name.trim().length < 2) next.name = 'We need a name for the file.';
+    if (!isMobile(who.phone)) next.phone = 'Ten digits, starting 98 or 97.';
+    if (who.district.trim().length < 2) next.district = 'Which district?';
+    setErrors(next);
+    if (Object.keys(next).length === 0) setStep(3);
+  };
   const [rate, setRate] = useState(FINANCE_DEFAULTS.interestRate);
   const [tenure, setTenure] = useState(FINANCE_DEFAULTS.vanTermMonths);
   const [down, setDown] = useState(() =>
@@ -62,9 +83,9 @@ export default function Finance() {
   return (
     <>
       <div className="crumbs">
-        <button onClick={() => navigate('/')}>Browse</button>
+        <Link to="/">Browse</Link>
         <span>/</span>
-        <button onClick={() => navigate(`/vehicle/${v.id}`)}>{v.name}</button>
+        <Link to={`/vehicle/${v.id}`}>{v.name}</Link>
         <span>/</span>
         <span className="crumbs__here">Finance</span>
       </div>
@@ -167,37 +188,97 @@ export default function Finance() {
                 Enough for us to start the file. A person from our counter calls you the
                 same working day.
               </p>
-              <div className="applicant">
-                <input type="text" className="field" placeholder="Full name" />
-                <input type="tel" className="field" placeholder="Mobile number" />
-                <select className="field" aria-label="Employment" defaultValue="Employment — Salaried">
-                  <option>Employment — Salaried</option>
-                  <option>Self employed / business</option>
-                  <option>Transport operator</option>
-                  <option>Farming</option>
-                </select>
-                <select className="field" aria-label="Monthly income" defaultValue="Monthly income — 50,000 to 1,00,000">
-                  <option>Monthly income — 50,000 to 1,00,000</option>
-                  <option>Under 50,000</option>
-                  <option>1,00,000 to 2,00,000</option>
-                  <option>Over 2,00,000</option>
-                </select>
-                <input type="text" className="field" placeholder="District" />
-                <select className="field" aria-label="Preferred bank" defaultValue="Preferred bank — no preference">
-                  <option>Preferred bank — no preference</option>
-                  <option>NIMB</option>
-                  <option>Nabil</option>
-                  <option>Global IME</option>
-                </select>
-              </div>
-              <div className="stepnav">
-                <button className="btn btn--outline-navy btn--lg-narrow" onClick={() => setStep(1)}>
-                  Back
-                </button>
-                <button className="btn btn--red btn--lg" onClick={() => setStep(3)}>
-                  Continue
-                </button>
-              </div>
+              <form onSubmit={submitApplicant} noValidate>
+                <div className="applicant">
+                  <label className="field-wrap">
+                    <span className="field-label">Full name</span>
+                    <input
+                      type="text"
+                      className="field"
+                      placeholder="Full name"
+                      value={who.name}
+                      onChange={(e) => setWho({ ...who, name: e.target.value })}
+                      aria-invalid={errors.name ? true : undefined}
+                    />
+                    {errors.name ? <span className="field-error">{errors.name}</span> : null}
+                  </label>
+                  <label className="field-wrap">
+                    <span className="field-label">Mobile number</span>
+                    <input
+                      type="tel"
+                      className="field"
+                      placeholder="98XXXXXXXX"
+                      value={who.phone}
+                      onChange={(e) => setWho({ ...who, phone: e.target.value })}
+                      aria-invalid={errors.phone ? true : undefined}
+                    />
+                    {errors.phone ? <span className="field-error">{errors.phone}</span> : null}
+                  </label>
+                  <label className="field-wrap">
+                    <span className="field-label">Employment</span>
+                    <select
+                      className="field"
+                      value={who.work}
+                      onChange={(e) => setWho({ ...who, work: e.target.value })}
+                    >
+                      <option>Salaried</option>
+                      <option>Self employed / business</option>
+                      <option>Transport operator</option>
+                      <option>Farming</option>
+                    </select>
+                  </label>
+                  <label className="field-wrap">
+                    <span className="field-label">Monthly income</span>
+                    <select
+                      className="field"
+                      value={who.income}
+                      onChange={(e) => setWho({ ...who, income: e.target.value })}
+                    >
+                      <option>50,000 to 1,00,000</option>
+                      <option>Under 50,000</option>
+                      <option>1,00,000 to 2,00,000</option>
+                      <option>Over 2,00,000</option>
+                    </select>
+                  </label>
+                  <label className="field-wrap">
+                    <span className="field-label">District</span>
+                    <input
+                      type="text"
+                      className="field"
+                      placeholder="District"
+                      value={who.district}
+                      onChange={(e) => setWho({ ...who, district: e.target.value })}
+                      aria-invalid={errors.district ? true : undefined}
+                    />
+                    {errors.district ? <span className="field-error">{errors.district}</span> : null}
+                  </label>
+                  <label className="field-wrap">
+                    <span className="field-label">Preferred bank</span>
+                    <select
+                      className="field"
+                      value={who.bank}
+                      onChange={(e) => setWho({ ...who, bank: e.target.value })}
+                    >
+                      <option>No preference</option>
+                      <option>NIMB</option>
+                      <option>Nabil</option>
+                      <option>Global IME</option>
+                    </select>
+                  </label>
+                </div>
+                <div className="stepnav">
+                  <button
+                    type="button"
+                    className="btn btn--outline-navy btn--lg-narrow"
+                    onClick={() => setStep(1)}
+                  >
+                    Back
+                  </button>
+                  <button type="submit" className="btn btn--red btn--lg">
+                    Continue
+                  </button>
+                </div>
+              </form>
             </div>
           ) : null}
 
@@ -252,11 +333,20 @@ export default function Finance() {
                   Book a test ride on the {v.name} so it is charged and parked out front
                   when you arrive.
                 </p>
-                <a href="#" className="btn btn--red">Book a test ride</a>
+                <a
+                  className="btn btn--red"
+                  href={`https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(
+                    `I have applied for finance on the ${v.name}. My number is ${cleanMobile(who.phone)}. Can I book a test ride?`
+                  )}`}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  Book a test ride
+                </a>
               </div>
-              <button className="done__back" onClick={() => navigate('/')}>
+              <Link className="done__back" to="/">
                 Back to browsing
-              </button>
+              </Link>
             </div>
           ) : null}
         </div>

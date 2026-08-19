@@ -40,6 +40,56 @@ a:hover { color: var(--red-dark); }
 
 ::selection { background: var(--red); color: #fff; }
 
+/* --------------------------------------------------------------- focus ring
+
+   Everything interactive has to show where the keyboard is. :focus-visible so
+   it appears for keyboard and programmatic focus but not on mouse clicks. The
+   ring is drawn with outline + offset so it never shifts layout, and it flips
+   to white wherever the surface underneath is navy or a photograph. */
+
+:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+.hero :focus-visible,
+.sechead :focus-visible,
+.summary :focus-visible,
+.stats :focus-visible,
+.sitefoot :focus-visible,
+.masthead:not(.is-solid) :focus-visible {
+  outline-color: #fff;
+}
+
+/* Cards and rows sit flush against their neighbours, so the ring goes inside. */
+.card:focus-visible,
+.related__item:focus-visible,
+.browseall:focus-visible,
+.navmenu__item:focus-visible,
+.doc:focus-visible { outline-offset: -3px; }
+
+.field:focus-visible { outline: 2px solid var(--red); outline-offset: 0; }
+input[type='range']:focus-visible { outline: 2px solid var(--red); outline-offset: 4px; }
+
+/* Lets a keyboard user reach the catalogue without tabbing the whole masthead. */
+.skiplink {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translate(-50%, -120%);
+  z-index: 200;
+  background: var(--red);
+  color: #fff;
+  font-family: var(--body);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 12px 22px;
+  transition: transform 0.18s ease;
+}
+.skiplink:focus { transform: translate(-50%, 0); color: #fff; }
+
 img { display: block; }
 
 button { font-family: var(--body); }
@@ -119,7 +169,8 @@ body:not(.has-hero) #view { padding-top: 76px; }
 
 /* Micro-type nav: small, letterspaced, quiet until hovered. */
 .masthead__nav { display: flex; gap: 34px; }
-.masthead__nav button {
+.masthead__nav button,
+.masthead__nav a {
   cursor: pointer;
   background: none;
   border: none;
@@ -130,9 +181,12 @@ body:not(.has-hero) #view { padding-top: 76px; }
   color: rgba(255, 255, 255, 0.62);
   transition: color 0.2s ease;
 }
-.masthead__nav button:hover { color: #fff; }
-.masthead.is-solid .masthead__nav button { color: var(--slate); }
-.masthead.is-solid .masthead__nav button:hover { color: var(--red); }
+.masthead__nav button:hover,
+.masthead__nav a:hover { color: #fff; }
+.masthead.is-solid .masthead__nav button,
+.masthead.is-solid .masthead__nav a { color: var(--slate); }
+.masthead.is-solid .masthead__nav button:hover,
+.masthead.is-solid .masthead__nav a:hover { color: var(--red); }
 
 .masthead__actions { display: flex; align-items: center; gap: 20px; }
 .masthead__phone {
@@ -495,6 +549,14 @@ body:not(.has-hero) #view { padding-top: 76px; }
 .grid-wrap { padding: 36px var(--gutter) 52px; }
 .cardgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 
+/* Cards, related items, the menu rows and the browse-all handoff are anchors
+   now. The global `a` colour would otherwise turn their text red. */
+.card,
+.related__item,
+.browseall,
+.navmenu__item,
+.masthead__logo { color: inherit; text-decoration: none; }
+
 .card {
   background: #fff;
   border: 1px solid var(--line);
@@ -556,7 +618,46 @@ body:not(.has-hero) #view { padding-top: 76px; }
 .field:focus { border-color: var(--navy); }
 
 .exchange__form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 500px; }
-.exchange__submit { font-family: var(--display); font-size: 16px; letter-spacing: 0.07em; padding: 13px 0 10px; }
+
+/* ------------------------------------------------------------------- forms */
+
+/* Fields carry a visible label now rather than leaning on the placeholder,
+   which disappears the moment someone starts typing. */
+.field-wrap { display: flex; flex-direction: column; gap: 6px; }
+.field-label {
+  font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--slate);
+}
+.field-error { font-size: 11.5px; color: var(--red); }
+.field[aria-invalid='true'] { border-color: var(--red); }
+
+.formnote { font-size: 11.5px; color: var(--slate); line-height: 1.7; margin-top: 10px; }
+.formnote--bad { color: var(--red); }
+
+.formdone {
+  display: flex; gap: 14px; align-items: flex-start;
+  border: 1px solid var(--line); background: #fff;
+  padding: 20px 22px; margin-bottom: 24px;
+}
+.formdone__tick {
+  width: 30px; height: 30px; flex-shrink: 0;
+  background: var(--navy); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-size: 18px;
+}
+.formdone__title { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+.formdone__note { font-size: 12.5px; color: var(--slate); line-height: 1.7; }
+.formdone__actions { display: flex; align-items: center; gap: 16px; margin-top: 14px; flex-wrap: wrap; }
+.formdone__actions .btn { font-size: 16px; padding: 11px 20px 8px; }
+
+/* A button that has to read as a link, for a secondary action beside one. */
+.linkbtn {
+  background: none; border: none; padding: 0; cursor: pointer;
+  font-family: var(--body); font-size: 12.5px; color: var(--red);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.linkbtn:hover { color: var(--red-dark); }
+.exchange__submit { font-family: var(--display); font-size: 16px; letter-spacing: 0.07em; padding: 13px 0 10px; align-self: end; }
 .exchange__result { margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--line-soft); }
 .exchange__result-label {
   font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
@@ -592,7 +693,8 @@ body:not(.has-hero) #view { padding-top: 76px; }
   font-size: 12.5px; color: var(--slate);
   flex-wrap: wrap;
 }
-.crumbs button {
+.crumbs button,
+.crumbs a {
   cursor: pointer; color: var(--red); background: none; border: none;
   padding: 0; font-family: var(--body); font-size: 12.5px;
 }
@@ -612,6 +714,7 @@ body:not(.has-hero) #view { padding-top: 76px; }
   outline: 2px solid transparent; outline-offset: -2px; border: none; padding: 0;
 }
 .detail__thumb.is-on { outline-color: var(--navy); }
+.detail__thumb:focus-visible { outline-color: var(--red); }
 .detail__thumb img { width: 100%; height: 100%; object-fit: cover; }
 .detail__caption { font-size: 11.5px; color: var(--muted); margin: 10px 0 44px; }
 
@@ -726,7 +829,7 @@ body:not(.has-hero) #view { padding-top: 76px; }
 }
 .done__card p { font-size: 13.5px; color: var(--ink); line-height: 1.7; }
 .done__card .btn { margin-top: 16px; font-size: 18px; padding: 14px 30px 10px; }
-.done__back { cursor: pointer; font-size: 13px; color: var(--red); background: none; border: none; padding: 0; font-family: var(--body); }
+.done__back { cursor: pointer; font-size: 13px; color: var(--red); background: none; border: none; padding: 0; font-family: var(--body); display: inline-block; }
 
 .summary { background: var(--navy); color: #fff; padding: 44px 40px; }
 .summary__eyebrow {

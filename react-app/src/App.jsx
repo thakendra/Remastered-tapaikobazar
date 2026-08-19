@@ -22,11 +22,15 @@ function ScrollToTop() {
 export default function App() {
   return (
     <FiltersProvider>
+      <a className="skiplink" href="#view">
+        Skip to the vehicles
+      </a>
+
       <div className="site">
         <Masthead />
         <ScrollToTop />
 
-        <main id="view">
+        <main id="view" tabIndex={-1}>
           <Routes>
             <Route path="/" element={<Browse />} />
             <Route path="/two-wheelers" element={<TwoWheelerStore />} />

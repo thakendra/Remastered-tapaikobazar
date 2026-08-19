@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import Shot from '../components/Shot';
 import { CATALOGUE, CONTACT, FINANCE_DEFAULTS } from '../data/catalogue';
 import { findVehicle } from '../lib/vehicles';
@@ -7,7 +7,6 @@ import { emi, npr, priceText } from '../lib/format';
 
 export default function VehicleDetail() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const v = findVehicle(id);
   const [shotAt, setShotAt] = useState(0);
 
@@ -47,7 +46,7 @@ export default function VehicleDetail() {
   return (
     <>
       <div className="crumbs">
-        <button onClick={() => navigate('/')}>Browse</button>
+        <Link to="/">Browse</Link>
         <span>/</span>
         <span>{v.brand}</span>
         <span>/</span>
@@ -113,12 +112,22 @@ export default function VehicleDetail() {
           </div>
 
           <div className="detail__cta">
-            <button
-              className="btn btn--red btn--block"
-              onClick={() => v.price != null && navigate(`/finance/${v.id}`)}
-            >
-              {v.price != null ? 'Get finance on this' : 'Ask for the price'}
-            </button>
+            {v.price != null ? (
+              <Link className="btn btn--red btn--block" to={`/finance/${v.id}`}>
+                Get finance on this
+              </Link>
+            ) : (
+              <a
+                className="btn btn--red btn--block"
+                href={`https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(
+                  'What is the price of the ' + v.name + '?'
+                )}`}
+                target="_blank"
+                rel="noopener"
+              >
+                Ask for the price
+              </a>
+            )}
             <a
               href={`https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(
                 'I am interested in the ' + v.name
@@ -149,11 +158,7 @@ export default function VehicleDetail() {
             <div className="detail__block-label">Also worth a look</div>
             <div className="related">
               {related.map((r) => (
-                <button
-                  className="related__item"
-                  key={r.id}
-                  onClick={() => navigate(`/vehicle/${r.id}`)}
-                >
+                <Link className="related__item" key={r.id} to={`/vehicle/${r.id}`}>
                   <span className="related__shot">
                     <Shot vehicle={r} />
                   </span>
@@ -163,7 +168,7 @@ export default function VehicleDetail() {
                       {priceText(r, 'Price at the counter')}
                     </span>
                   </span>
-                </button>
+                </Link>
               ))}
             </div>
           </div>
@@ -176,12 +181,22 @@ export default function VehicleDetail() {
           <span className="actionbar__label">Showroom price</span>
           <span className="actionbar__value">{priceText(v, 'Ask at the counter')}</span>
         </div>
-        <button
-          className="btn btn--red actionbar__cta"
-          onClick={() => v.price != null && navigate(`/finance/${v.id}`)}
-        >
-          {v.price != null ? 'Get finance' : 'Ask the price'}
-        </button>
+        {v.price != null ? (
+          <Link className="btn btn--red actionbar__cta" to={`/finance/${v.id}`}>
+            Get finance
+          </Link>
+        ) : (
+          <a
+            className="btn btn--red actionbar__cta"
+            href={`https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(
+              'What is the price of the ' + v.name + '?'
+            )}`}
+            target="_blank"
+            rel="noopener"
+          >
+            Ask the price
+          </a>
+        )}
       </div>
     </>
   );

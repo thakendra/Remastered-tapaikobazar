@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { CONTACT } from '../data/catalogue';
 import Drawer from './Drawer';
 
@@ -56,9 +56,9 @@ export default function Masthead() {
   return (
     <>
       <header className={`masthead${solid ? ' is-solid' : ''}`}>
-        <button className="masthead__logo" onClick={() => navigate('/')} aria-label="TapaikoBazar home">
+        <Link className="masthead__logo" to="/" aria-label="TapaikoBazar home">
           <img src="/assets/logo.png" alt="Tapaiko Bazar" />
-        </button>
+        </Link>
 
         <nav className="masthead__nav">
           {SECTIONS.map(([id, label]) => (
@@ -66,8 +66,8 @@ export default function Masthead() {
               {label}
             </button>
           ))}
-          <button onClick={() => navigate('/')}>Exchange</button>
-          <button onClick={() => navigate('/about')}>About us</button>
+          <Link to="/#exchange">Exchange</Link>
+          <Link to="/about">About us</Link>
         </nav>
 
         <div className="masthead__actions">
@@ -125,24 +125,12 @@ export default function Masthead() {
               {label}
             </button>
           ))}
-          <button
-            className="navmenu__item"
-            onClick={() => {
-              setMenu(false);
-              navigate('/');
-            }}
-          >
+          <Link className="navmenu__item" to="/#exchange" onClick={() => setMenu(false)}>
             Exchange
-          </button>
-          <button
-            className="navmenu__item"
-            onClick={() => {
-              setMenu(false);
-              navigate('/about');
-            }}
-          >
+          </Link>
+          <Link className="navmenu__item" to="/about" onClick={() => setMenu(false)}>
             About us
-          </button>
+          </Link>
 
           <div className="navmenu__contact">
             <div className="navmenu__label">Showroom</div>

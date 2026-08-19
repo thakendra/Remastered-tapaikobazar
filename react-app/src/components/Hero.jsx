@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { HERO_SLIDES } from '../data/catalogue';
 import { findVehicle } from '../lib/vehicles';
 import { priceText } from '../lib/format';
@@ -7,7 +7,6 @@ import { priceText } from '../lib/format';
 const INTERVAL = 5500;
 
 export default function Hero() {
-  const navigate = useNavigate();
   const [at, setAt] = useState(0);
   const timer = useRef(null);
 
@@ -91,26 +90,17 @@ export default function Hero() {
                   </span>
                 </div>
                 <div className="hero__actions">
-                  <button
-                    className="btn btn--red btn--md"
-                    onClick={() => navigate(`/vehicle/${s.v.id}`)}
-                  >
+                  <Link className="btn btn--red btn--md" to={`/vehicle/${s.v.id}`}>
                     View details
-                  </button>
+                  </Link>
                   {s.v.price != null ? (
-                    <button
-                      className="btn btn--outline-light btn--md"
-                      onClick={() => navigate(`/finance/${s.v.id}`)}
-                    >
+                    <Link className="btn btn--outline-light btn--md" to={`/finance/${s.v.id}`}>
                       Get finance
-                    </button>
+                    </Link>
                   ) : (
-                    <button
-                      className="btn btn--outline-light btn--md"
-                      onClick={() => navigate(`/vehicle/${s.v.id}`)}
-                    >
+                    <Link className="btn btn--outline-light btn--md" to={`/vehicle/${s.v.id}`}>
                       Ask the price
-                    </button>
+                    </Link>
                   )}
                 </div>
               </div>
