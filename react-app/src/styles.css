@@ -9,6 +9,10 @@
   --ink: #0C2340;
   --red: #CE1126;
   --red-dark: #A50E1E;
+  /* The brand crimson only manages 2.7:1 against the hero's dark ground, under
+     the 3:1 floor for large text. This is the same red opened up for use on
+     dark: 4.7:1, which clears AA outright. Light surfaces keep --red. */
+  --red-bright: #FF4D5E;
   --pink: #FF8A96;
   --slate: #5B7089;
   --muted: #93A3B5;
@@ -334,6 +338,10 @@ body:not(.has-hero) #view { padding-top: 76px; }
   to { opacity: 1; transform: none; }
 }
 
+/* The last word carries the accent, the way the reference lands on its own
+   closing word. */
+.hero__word--accent { color: var(--red-bright); }
+
 /* The vehicle block is keyed on the slide, so this replays on every change. */
 .hero__vehicle {
   display: flex;
@@ -353,7 +361,7 @@ body:not(.has-hero) #view { padding-top: 76px; }
   display: block;
   width: 180px; height: 2px;
   margin: 26px 0 0;
-  background: linear-gradient(90deg, transparent, var(--red), transparent);
+  background: linear-gradient(90deg, transparent, var(--red-bright), transparent);
   transform: scaleX(0);
   animation: heroRule 0.7s cubic-bezier(0.16, 0.84, 0.28, 1) 0.5s forwards;
 }

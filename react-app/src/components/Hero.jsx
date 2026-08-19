@@ -86,7 +86,10 @@ export default function Hero() {
         <h1 className="hero__title">
           {HEADLINE.map((word, i) => (
             <Fragment key={word}>
-              <span className="hero__word" style={{ animationDelay: `${0.14 + i * 0.09}s` }}>
+              <span
+                className={`hero__word${i === HEADLINE.length - 1 ? ' hero__word--accent' : ''}`}
+                style={{ animationDelay: `${0.14 + i * 0.09}s` }}
+              >
                 {word}
               </span>
               {/* A real space, so the line reads as words rather than one
