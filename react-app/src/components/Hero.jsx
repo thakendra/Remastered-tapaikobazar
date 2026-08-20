@@ -1,7 +1,8 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HERO_SLIDES } from '../data/catalogue';
-import { findVehicle } from '../lib/vehicles';
+import { useFilters } from '../lib/filtersContext';
+import { heroSources } from '../lib/sanity';
 
 const INTERVAL = 5500;
 
@@ -11,10 +12,11 @@ const INTERVAL = 5500;
 const HEADLINE = ['Buy,', 'Sell', 'and', 'Finance'];
 
 export default function Hero() {
+  const f = useFilters();
   const [at, setAt] = useState(0);
   const timer = useRef(null);
 
-  const slides = HERO_SLIDES.map((s) => ({ ...s, v: findVehicle(s.id) })).filter((s) => s.v);
+  const slides = HERO_SLIDES.map((s) => ({ ...s, v: f.findVehicle(s.id) })).filter((s) => s.v);
 
   const go = useCallback(
     (n) => setAt(((n % slides.length) + slides.length) % slides.length),
@@ -52,12 +54,16 @@ export default function Hero() {
     step(dx < 0 ? 1 : -1);
   };
 
-  const slide = slides[at];
+  const slide = slides[at] || slides[0];
 
   const scrollToBrowse = () => {
     const el = document.getElementById('browse');
     if (el) window.scrollTo({ top: el.offsetTop - 80, behavior: 'smooth' });
   };
+
+  if (!slides || slides.length === 0 || !slide || !slide.v) {
+    return null;
+  }
 
   return (
     <div className="hero" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
@@ -70,12 +76,22 @@ export default function Hero() {
             className={`hero__slide${i === at ? ' is-on' : ''}`}
             aria-hidden={i !== at}
           >
-            <img
-              className="hero__img"
-              src={s.v.img}
-              alt={s.v.name}
-              loading={i === 0 ? undefined : 'lazy'}
-            />
+            {(() => {
+              const { wide, tall } = heroSources(s.v.imageRef, s.v.img);
+              return (
+                <picture>
+                  {/* Upright screens get an upright crop, so the vehicle is
+                      framed rather than magnified. */}
+                  <source media="(max-aspect-ratio: 1/1)" srcSet={tall} />
+                  <img
+                    className="hero__img"
+                    src={wide}
+                    alt={s.v.name}
+                    loading={i === 0 ? undefined : 'lazy'}
+                  />
+                </picture>
+              );
+            })()}
           </div>
         ))}
       </div>

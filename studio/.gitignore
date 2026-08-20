@@ -1,0 +1,14 @@
+# Sanity Studio. Without this, `git add -A` tries to stage tens of thousands of
+# files from node_modules and the build output.
+
+node_modules
+dist
+.sanity
+
+# Never commit a Sanity token or project secret.
+.env
+.env.*
+!.env.example
+
+*.log
+.DS_Store
