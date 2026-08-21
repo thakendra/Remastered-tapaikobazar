@@ -9,6 +9,7 @@ import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import Browse from './pages/Browse';
 import Finance from './pages/Finance';
+import Recondition from './pages/Recondition';
 import TwoWheelerStore from './pages/TwoWheelerStore';
 import VehicleDetail from './pages/VehicleDetail';
 
@@ -79,6 +80,7 @@ export default function App() {
             <Route path="/two-wheelers" element={<TwoWheelerStore />} />
             <Route path="/vehicle/:id" element={<VehicleDetail />} />
             <Route path="/finance/:id" element={<Finance />} />
+            <Route path="/recondition" element={<Recondition />} />
             <Route path="/journal" element={<Blog />} />
             <Route path="/journal/:slug" element={<BlogPost />} />
             <Route path="/about" element={<About />} />

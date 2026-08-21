@@ -1292,6 +1292,63 @@ body:not(.has-hero) #view { padding-top: 76px; }
 .shot img { width: 100%; height: 240px; object-fit: cover; }
 .shot figcaption { font-size: 12px; color: var(--slate); padding: 12px 16px; }
 
+/* --------------------------------------------------------- recondition page
+
+   The form carries the page, so it takes the wider column; everything that
+   supports it sits alongside. */
+
+.recondition__page {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 36px;
+  padding: 44px var(--gutter) 56px;
+  align-items: start;
+}
+
+.recondition__main {
+  background: #fff;
+  border: 1px solid var(--line);
+  padding: 30px 32px 32px;
+}
+
+/* On its own page the form has room to breathe, so the fields go full width
+   rather than pairing up. */
+.valuation .recondition__form { grid-template-columns: 1fr 1fr; max-width: none; }
+
+.recondition__aside { display: flex; flex-direction: column; gap: 26px; }
+
+.recondition__points--stack { display: grid; grid-template-columns: 1fr; gap: 14px; margin: 0; max-width: none; }
+
+.recondition__steps { background: var(--bg-alt); padding: 24px 26px; }
+.recondition__step { display: flex; gap: 14px; align-items: flex-start; margin-top: 16px; }
+.recondition__step-num {
+  flex-shrink: 0;
+  width: 24px; height: 24px;
+  background: var(--navy); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-size: 14px; line-height: 1;
+}
+.recondition__step-name { display: block; font-size: 13px; font-weight: 600; color: var(--ink); }
+.recondition__step-note { display: block; font-size: 12px; color: var(--slate); line-height: 1.65; margin-top: 3px; }
+
+.recondition__help { border: 1px solid var(--line); padding: 24px 26px; }
+.recondition__help-title { font-family: var(--serif); font-size: 21px; color: var(--navy); }
+.recondition__help-note { font-size: 12.5px; color: var(--slate); line-height: 1.7; margin-top: 8px; }
+.recondition__help-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+
+/* The home page keeps a short version that hands off to the page. */
+.recondition__cta { margin-top: 24px; padding: 15px 26px; }
+
+@media (max-width: 980px) {
+  .recondition__page { grid-template-columns: 1fr; gap: 26px; }
+}
+
+@media (max-width: 720px) {
+  .recondition__page { padding: 28px var(--gutter) 40px; }
+  .recondition__main { padding: 22px 20px 24px; }
+  .valuation .recondition__form { grid-template-columns: 1fr; }
+}
+
 /* ------------------------------------------------------------ photo upload
 
    The native file input is unstyleable and says "No file chosen", so it is
