@@ -20,6 +20,8 @@ function ScrollToTop() {
 }
 
 export default function App() {
+  const { pathname } = useLocation();
+
   return (
     <FiltersProvider>
       <a className="skiplink" href="#view">
@@ -30,7 +32,9 @@ export default function App() {
         <Masthead />
         <ScrollToTop />
 
-        <main id="view" tabIndex={-1}>
+        {/* Keyed on the path so each route mounts fresh and plays its entrance,
+            rather than the next page snapping into the last one's place. */}
+        <main id="view" tabIndex={-1} key={pathname} className="view-enter">
           <Routes>
             <Route path="/" element={<Browse />} />
             <Route path="/two-wheelers" element={<TwoWheelerStore />} />

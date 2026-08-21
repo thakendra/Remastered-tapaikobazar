@@ -1,12 +1,15 @@
 import { Link } from 'react-router-dom';
 import { BrandPills, TypeChips } from '../components/Filters';
 import VehicleCard from '../components/VehicleCard';
+import useReveal from '../lib/useReveal';
 import { useFilters } from '../lib/filtersContext';
 import { ALL_TW } from '../lib/vehicles';
 
 export default function TwoWheelerStore() {
   const f = useFilters();
   const results = f.twSorted;
+
+  useReveal([results.length]);
 
   return (
     <>
@@ -33,7 +36,7 @@ export default function TwoWheelerStore() {
 
       <div className="storebar">
         <div className="storebar__brands">
-          <BrandPills list={ALL_TW} current={f.brandTw} onPick={f.setBrandTw} />
+          <BrandPills list={f.allTw} current={f.brandTw} onPick={f.setBrandTw} />
         </div>
         <div className="storebar__tail">
           <label className="storebar__sortlabel" htmlFor="tw-sort">Sort</label>
@@ -48,14 +51,14 @@ export default function TwoWheelerStore() {
             <option value="price-desc">Price, high to low</option>
           </select>
           <span className="storebar__count">
-            <strong>{results.length}</strong> of {ALL_TW.length}
+            <strong>{results.length}</strong> of {f.allTw.length}
           </span>
         </div>
       </div>
 
       <div className="grid-wrap">
         <div className="cardgrid">
-          {results.map((v) => <VehicleCard key={v.id} vehicle={v} />)}
+          {results.map((v, i) => <VehicleCard key={v.id} vehicle={v} index={i} />)}
         </div>
         {results.length === 0 ? (
           <div className="empty">

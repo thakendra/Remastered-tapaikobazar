@@ -6,7 +6,7 @@ import Shot from './Shot';
 /* A real anchor, not a button that navigates. That buys open-in-new-tab,
    copy-link-address, the status bar URL preview, "link" rather than "button"
    in a screen reader, and a crawlable path to all 77 vehicles. */
-export default function VehicleCard({ vehicle: v }) {
+export default function VehicleCard({ vehicle: v, index = 0 }) {
   const isVan = v.type === 'van';
 
   const quick = isVan
@@ -14,7 +14,14 @@ export default function VehicleCard({ vehicle: v }) {
     : v.specs.slice(0, 3).map((x) => x[1]).join(' · ');
 
   return (
-    <Link className="card" to={`/vehicle/${v.id}`}>
+    <Link
+      className="card"
+      to={`/vehicle/${v.id}`}
+      data-reveal
+      /* Capped, or the tail of a fifty three card grid would still be
+         arriving long after the reader got there. */
+      style={{ '--d': `${Math.min(index, 7) * 55}ms` }}
+    >
       <div className="card__shot">
         <Shot vehicle={v} />
         <span className="card__tag">{TYPE_LABEL[v.type]}</span>

@@ -8,6 +8,7 @@ import {
   CONTACT, EXCHANGE, HOW_TO_BUY,
 } from '../data/catalogue';
 import { useFilters } from '../lib/filtersContext';
+import useReveal from '../lib/useReveal';
 import { ALL_CARS, ALL_TW, ALL_VANS } from '../lib/vehicles';
 import { TW_PREVIEW, npr } from '../lib/format';
 import { MAKES, YEARS, cleanMobile, estimateExchange, isMobile } from '../lib/forms';
@@ -15,7 +16,7 @@ import { MAKES, YEARS, cleanMobile, estimateExchange, isMobile } from '../lib/fo
 function HowToBuy() {
   return (
     <div className="howto">
-      <div className="howto__head">
+      <div className="howto__head" data-reveal="fade">
         <span className="panel__eyebrow">Simple and fast</span>
         <h2 className="howto__title">How to buy from TapaikoBazar</h2>
         <p className="howto__lede">
@@ -24,7 +25,7 @@ function HowToBuy() {
       </div>
       <div className="howto__steps">
         {HOW_TO_BUY.map(([name, text], i) => (
-          <div className="howto__step" key={name}>
+          <div className="howto__step" key={name} data-reveal style={{ '--d': `${i * 70}ms` }}>
             <div className="howto__num">{i + 1}</div>
             <div className="howto__name">{name}</div>
             <p className="howto__text">{text}</p>
@@ -71,7 +72,7 @@ function ExchangePanel() {
   };
 
   return (
-    <div className="panel panel--white">
+    <div className="panel panel--white" data-reveal>
       <span className="panel__eyebrow">{EXCHANGE.title}</span>
       <h2 className="panel__title">Your old vehicle counts toward the down</h2>
       <p className="panel__lede panel__lede--narrow">{EXCHANGE.lede}</p>
@@ -157,7 +158,7 @@ function VisitPanel() {
   );
 
   return (
-    <div className="panel">
+    <div className="panel" data-reveal style={{ '--d': '90ms' }}>
       <span className="panel__eyebrow">Visit</span>
       <h2 className="panel__title">Pick a slot, we will keep it ready</h2>
       <p className="panel__lede panel__lede--narrower">
@@ -255,6 +256,10 @@ export default function Browse() {
   const f = useFilters();
   const twShown = f.tw.slice(0, TW_PREVIEW);
 
+  /* Re-run when a filter changes: the cards that just appeared have never been
+     observed, and without this they would sit invisible at opacity zero. */
+  useReveal([f.vans.length, f.cars.length, twShown.length]);
+
   return (
     <>
       <Hero />
@@ -272,7 +277,7 @@ export default function Browse() {
             <div className="sechead__filter">
               <span className="sechead__filter-label">Brand</span>
               <BrandPills
-                list={ALL_VANS}
+                list={f.allVans}
                 current={f.brandVan}
                 onPick={f.setBrandVan}
                 className="brandpills--vans"
@@ -283,7 +288,7 @@ export default function Browse() {
         >
           <div className="grid-wrap">
             <div className="cardgrid">
-              {f.vans.map((v) => <VehicleCard key={v.id} vehicle={v} />)}
+              {f.vans.map((v, i) => <VehicleCard key={v.id} vehicle={v} index={i} />)}
             </div>
             {f.vans.length === 0 ? (
               <div className="empty">
@@ -307,7 +312,7 @@ export default function Browse() {
             <div className="sechead__filter">
               <span className="sechead__filter-label">Brand</span>
               <BrandPills
-                list={ALL_CARS}
+                list={f.allCars}
                 current={f.brandCar}
                 onPick={f.setBrandCar}
                 className="brandpills--cars"
@@ -317,7 +322,7 @@ export default function Browse() {
         >
           <div className="grid-wrap">
             <div className="cardgrid">
-              {f.cars.map((v) => <VehicleCard key={v.id} vehicle={v} />)}
+              {f.cars.map((v, i) => <VehicleCard key={v.id} vehicle={v} index={i} />)}
             </div>
           </div>
         </Section>
@@ -336,7 +341,7 @@ export default function Browse() {
               <TypeChips />
               <span className="sechead__filter-label">Brand</span>
               <BrandPills
-                list={ALL_TW}
+                list={f.allTw}
                 current={f.brandTw}
                 onPick={f.setBrandTw}
                 className="brandpills--tw"
@@ -346,7 +351,7 @@ export default function Browse() {
         >
           <div className="grid-wrap">
             <div className="cardgrid">
-              {twShown.map((v) => <VehicleCard key={v.id} vehicle={v} />)}
+              {twShown.map((v, i) => <VehicleCard key={v.id} vehicle={v} index={i} />)}
             </div>
             <Link className="browseall" to="/two-wheelers">
               <span className="browseall__label">Browse all two wheelers</span>

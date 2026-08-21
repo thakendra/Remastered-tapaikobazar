@@ -32,7 +32,7 @@ export default function Section({
   return (
     <div id={id} className={`section${tint ? ' section--tint' : ''}`}>
       <div className="sechead">
-        <div>
+        <div data-reveal="fade">
           <div className="sechead__index">{index}</div>
           <h2 className="sechead__title">{title}</h2>
           <p className="sechead__note">{note}</p>
