@@ -1,0 +1,12 @@
+{
+  "name": "remastered-tapaikobazar",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "npm --prefix react-app run dev",
+    "build": "npm --prefix react-app run build",
+    "studio": "npm --prefix studio run dev",
+    "studio:build": "npm --prefix studio run build",
+    "studio:deploy": "npm --prefix studio run deploy"
+  }
+}

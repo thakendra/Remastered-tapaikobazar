@@ -9,6 +9,10 @@
   --ink: #0C2340;
   --red: #CE1126;
   --red-dark: #A50E1E;
+  /* The brand crimson only manages 2.7:1 against the hero's dark ground, under
+     the 3:1 floor for large text. This is the same red opened up for use on
+     dark: 4.7:1, which clears AA outright. Light surfaces keep --red. */
+  --red-bright: #FF4D5E;
   --pink: #FF8A96;
   --slate: #5B7089;
   --muted: #93A3B5;
@@ -21,6 +25,7 @@
 
   --display: 'Bebas Neue', sans-serif;
   --serif: 'Instrument Serif', Georgia, serif;
+  --poster: 'Instrument Serif', Georgia, serif;
   --body: 'Poppins', sans-serif;
 
   --gutter: 48px;
@@ -39,6 +44,119 @@ a { color: var(--red); text-decoration: none; }
 a:hover { color: var(--red-dark); }
 
 ::selection { background: var(--red); color: #fff; }
+
+/* ------------------------------------------------------------------- motion
+
+   One reveal, used everywhere. Elements carrying data-reveal start a little
+   low and transparent and settle as they enter view; useReveal adds .is-in.
+   Only transform and opacity move, so the compositor does the work and the
+   page never re-lays-out mid scroll.
+
+   --d staggers members of a group: the cards in a grid come in one after
+   another rather than all at once. */
+
+[data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0);
+  transition:
+    opacity 0.62s cubic-bezier(0.22, 0.68, 0.24, 1) var(--d, 0s),
+    transform 0.62s cubic-bezier(0.22, 0.68, 0.24, 1) var(--d, 0s);
+  will-change: transform, opacity;
+}
+[data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+/* A quieter variant for things that only need to fade — text blocks where a
+   slide would fight the reading line. */
+[data-reveal='fade'] { transform: none; }
+
+/* Nothing moves for anyone who has asked for that. */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .card,
+  .card__shot img,
+  .card__cue::after,
+  .related__item,
+  .browseall__label::after,
+  .btn {
+    transition: none;
+  }
+  .card:hover,
+  .card:active,
+  .related__item:hover,
+  .btn:active { transform: none; }
+  .card:hover .card__shot img { transform: none; }
+}
+
+/* A route change fades and lifts the incoming page. Short, because it sits
+   between a click and the thing the reader asked for. */
+.view-enter { animation: viewEnter 0.42s cubic-bezier(0.22, 0.68, 0.24, 1) both; }
+
+@keyframes viewEnter {
+  from { opacity: 0; transform: translate3d(0, 12px, 0); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .view-enter { animation: none; }
+}
+
+/* --------------------------------------------------------------- focus ring
+
+   Everything interactive has to show where the keyboard is. :focus-visible so
+   it appears for keyboard and programmatic focus but not on mouse clicks. The
+   ring is drawn with outline + offset so it never shifts layout, and it flips
+   to white wherever the surface underneath is navy or a photograph. */
+
+:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+.hero :focus-visible,
+.sechead :focus-visible,
+.summary :focus-visible,
+.stats :focus-visible,
+.sitefoot :focus-visible,
+.masthead:not(.is-solid) :focus-visible {
+  outline-color: #fff;
+}
+
+/* Cards and rows sit flush against their neighbours, so the ring goes inside. */
+.card:focus-visible,
+.related__item:focus-visible,
+.browseall:focus-visible,
+.navmenu__item:focus-visible,
+.doc:focus-visible { outline-offset: -3px; }
+
+.field:focus-visible { outline: 2px solid var(--red); outline-offset: 0; }
+input[type='range']:focus-visible { outline: 2px solid var(--red); outline-offset: 4px; }
+
+/* Lets a keyboard user reach the catalogue without tabbing the whole masthead. */
+.skiplink {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translate(-50%, -120%);
+  z-index: 200;
+  background: var(--red);
+  color: #fff;
+  font-family: var(--body);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 12px 22px;
+  transition: transform 0.18s ease;
+}
+.skiplink:focus { transform: translate(-50%, 0); color: #fff; }
 
 img { display: block; }
 
@@ -85,15 +203,8 @@ input[type=range]::-moz-range-track {
    room back. The solid masthead measures 65px, so this leaves a little air. */
 body:not(.has-hero) #view { padding-top: 76px; }
 
-/* Before the script runs #view is empty. Without this the page collapses to
-   nothing on reload: the footer springs up under the masthead and the light
-   body colour flashes white behind it. Holding the hero's colour and full
-   height keeps the reload looking like the hero it is about to become, with
-   the logo standing in until the markup arrives. */
-#view:empty {
-  min-height: 100vh;
-  background: var(--navy-deep) url('../assets/logo.png') center center / 150px auto no-repeat;
-}
+/* The boot hold now lives on #root in index.html, since React renders the
+   whole tree in one go and #view is never empty. */
 
 /* ----------------------------------------------------------------- masthead */
 
@@ -126,7 +237,8 @@ body:not(.has-hero) #view { padding-top: 76px; }
 
 /* Micro-type nav: small, letterspaced, quiet until hovered. */
 .masthead__nav { display: flex; gap: 34px; }
-.masthead__nav button {
+.masthead__nav button,
+.masthead__nav a {
   cursor: pointer;
   background: none;
   border: none;
@@ -137,9 +249,12 @@ body:not(.has-hero) #view { padding-top: 76px; }
   color: rgba(255, 255, 255, 0.62);
   transition: color 0.2s ease;
 }
-.masthead__nav button:hover { color: #fff; }
-.masthead.is-solid .masthead__nav button { color: var(--slate); }
-.masthead.is-solid .masthead__nav button:hover { color: var(--red); }
+.masthead__nav button:hover,
+.masthead__nav a:hover { color: #fff; }
+.masthead.is-solid .masthead__nav button,
+.masthead.is-solid .masthead__nav a { color: var(--slate); }
+.masthead.is-solid .masthead__nav button:hover,
+.masthead.is-solid .masthead__nav a:hover { color: var(--red); }
 
 .masthead__actions { display: flex; align-items: center; gap: 20px; }
 .masthead__phone {
@@ -151,7 +266,7 @@ body:not(.has-hero) #view { padding-top: 76px; }
 .masthead.is-solid .masthead__phone { color: var(--slate); }
 .masthead.is-solid .masthead__phone:hover { color: var(--red); }
 
-.masthead .btn--sm { font-size: 15px; padding: 10px 20px 7px; }
+.masthead .btn--sm { font-size: 10px; padding: 11px 20px; }
 
 /* Call button and hamburger. Hidden until the nav collapses. */
 .masthead__compact { display: none; align-items: center; gap: 6px; }
@@ -180,25 +295,51 @@ body:not(.has-hero) #view { padding-top: 76px; }
 
 /* ------------------------------------------------------------------ buttons */
 
+/* Quiet, square, letterspaced — the reference site's language. Small Poppins
+   at wide tracking rather than a big display face, a hairline border on every
+   variant so filled and outline buttons share one silhouette, and no radius. */
 .btn {
-  display: inline-block;
-  font-family: var(--display);
-  letter-spacing: 0.08em;
-  cursor: pointer;
-  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--body);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.17em;
+  line-height: 1;
   text-align: center;
+  border: 1px solid transparent;
+  border-radius: 0;
+  cursor: pointer;
+  transition: background-color 0.22s ease, border-color 0.22s ease, color 0.22s ease;
 }
-.btn--red { background: var(--red); color: #fff; }
-.btn--red:hover { background: var(--red-dark); color: #fff; }
-.btn--outline-light { border: 1px solid rgba(255, 255, 255, 0.5); color: #fff; background: none; }
-.btn--outline-navy { border: 1px solid var(--navy); color: var(--navy); background: none; }
-.btn--navy { background: var(--navy); color: #fff; }
 
-.btn--sm { font-size: 17px; padding: 11px 24px 8px; }
-.btn--md { font-size: 19px; padding: 15px 32px 11px; }
-.btn--lg { font-size: 20px; padding: 16px 40px 12px; }
-.btn--lg-narrow { font-size: 20px; padding: 16px 34px 12px; }
-.btn--block { display: block; width: 100%; font-size: 20px; padding: 16px 0 12px; }
+.btn--red { background: var(--red); border-color: var(--red); color: #fff; }
+.btn--red:hover { background: var(--red-dark); border-color: var(--red-dark); color: #fff; }
+
+/* On photographs: a little smoke behind it so the label holds up. */
+.btn--outline-light {
+  background: rgba(0, 32, 60, 0.4);
+  border-color: rgba(255, 255, 255, 0.38);
+  color: rgba(255, 255, 255, 0.88);
+}
+.btn--outline-light:hover { background: rgba(0, 32, 60, 0.6); border-color: #fff; color: #fff; }
+
+.btn--outline-navy { background: none; border-color: var(--navy); color: var(--navy); }
+.btn--outline-navy:hover { background: var(--navy); border-color: var(--navy); color: #fff; }
+
+.btn--navy { background: var(--navy); border-color: var(--navy); color: #fff; }
+.btn--navy:hover { background: var(--ink); border-color: var(--ink); }
+
+/* Padding is symmetric now: Bebas needed the extra bottom to sit on its
+   baseline, Poppins does not. */
+.btn:active { transform: translateY(1px); }
+
+.btn--sm { font-size: 10px; padding: 10px 18px; }
+.btn--md { font-size: 11px; padding: 14px 26px; }
+.btn--lg { font-size: 11.5px; padding: 16px 32px; }
+.btn--lg-narrow { font-size: 11.5px; padding: 16px 26px; }
+.btn--block { display: flex; width: 100%; font-size: 11.5px; padding: 16px; }
 
 /* --------------------------------------------------------------------- hero */
 
@@ -225,6 +366,8 @@ body:not(.has-hero) #view { padding-top: 76px; }
 }
 .hero__slide.is-on { opacity: 1; visibility: visible; transition-delay: 0s; }
 
+.hero__slide picture { position: absolute; inset: 0; display: block; }
+
 .hero__img {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
@@ -248,9 +391,10 @@ body:not(.has-hero) #view { padding-top: 76px; }
   position: absolute; inset: 0;
   z-index: 2;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  /* Foot padding keeps the stack clear of the dots and the scroll cue however
+  /* Head padding clears the fixed masthead so the headline never crowds the
+     nav; foot padding keeps the stack off the dots and the scroll cue however
      many lines the headline runs to. */
-  padding: 0 var(--gutter) 128px;
+  padding: 104px var(--gutter) 128px;
   text-align: center;
   color: #fff;
 }
@@ -262,30 +406,62 @@ body:not(.has-hero) #view { padding-top: 76px; }
   padding-left: 0.42em;
 }
 .hero__title {
-  font-family: var(--serif);
-  font-weight: 400;
-  font-size: clamp(42px, 6.4vw, 84px);
-  line-height: 0.96;
-  letter-spacing: 0.01em;
-  /* Wide enough that the <br /> in each headline is the only break. */
-  max-width: 24ch;
+  font-family: var(--poster);
+  font-weight: 400; /* Instrument Serif ships one weight; the size carries it */
+  font-size: clamp(46px, 8.4vw, 122px);
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  max-width: 17ch;
+  text-wrap: balance;
 }
+
+
+/* Each word rises into place, a beat apart. */
+.hero__word {
+  display: inline-block;
+  white-space: pre;
+  opacity: 0;
+  transform: translateY(0.42em);
+  animation: heroWord 0.8s cubic-bezier(0.16, 0.84, 0.28, 1) forwards;
+}
+
+@keyframes heroWord {
+  to { opacity: 1; transform: none; }
+}
+
+/* The last word carries the accent, the way the reference lands on its own
+   closing word. */
+.hero__word--accent { color: var(--red-bright); }
+
+/* The vehicle block is keyed on the slide, so this replays on every change. */
+.hero__vehicle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: heroSwap 0.55s ease both;
+}
+
+@keyframes heroSwap {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
 
 /* Hairline that fades out at both ends. */
 .hero__rule {
   display: block;
-  width: 180px; height: 1px;
+  width: 180px; height: 2px;
   margin: 26px 0 0;
-  background: linear-gradient(90deg, transparent, var(--red), transparent);
+  background: linear-gradient(90deg, transparent, var(--red-bright), transparent);
+  transform: scaleX(0);
+  animation: heroRule 0.7s cubic-bezier(0.16, 0.84, 0.28, 1) 0.5s forwards;
 }
 
-.hero__short {
-  font-size: 12px; font-weight: 300;
-  letter-spacing: 0.28em; text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.66);
-  margin-top: 20px;
-  padding-left: 0.28em;
+@keyframes heroRule {
+  to { transform: scaleX(1); }
 }
+
 
 .hero__meta { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 26px; }
 .hero__badge {
@@ -294,7 +470,6 @@ body:not(.has-hero) #view { padding-top: 76px; }
   border: 1px solid rgba(255, 255, 255, 0.28);
   padding: 7px 14px 6px;
 }
-.hero__badge--price { color: var(--pink); border-color: rgba(255, 138, 150, 0.4); }
 
 .hero__actions { display: flex; gap: 12px; justify-content: center; margin-top: 32px; }
 
@@ -327,6 +502,11 @@ body:not(.has-hero) #view { padding-top: 76px; }
 
 @media (prefers-reduced-motion: reduce) {
   .hero__img, .hero__slide { transition-duration: 0.01ms; }
+  .hero__word, .hero__rule, .hero__vehicle {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
   .hero__scroll-fill { animation: none; }
 }
 
@@ -428,6 +608,7 @@ body:not(.has-hero) #view { padding-top: 76px; }
 .brandpills--cars { max-width: 560px; }
 .brandpills--tw { max-width: 520px; }
 
+.pill { transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease; }
 .pill {
   font-family: var(--body);
   font-size: 12px;
@@ -467,6 +648,7 @@ body:not(.has-hero) #view { padding-top: 76px; }
   background: none; border: none; color: var(--red); cursor: pointer; padding: 0;
 }
 
+.chip { transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease; }
 .chip {
   font-family: var(--body);
   font-size: 12px;
@@ -502,6 +684,14 @@ body:not(.has-hero) #view { padding-top: 76px; }
 .grid-wrap { padding: 36px var(--gutter) 52px; }
 .cardgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 
+/* Cards, related items, the menu rows and the browse-all handoff are anchors
+   now. The global `a` colour would otherwise turn their text red. */
+.card,
+.related__item,
+.browseall,
+.navmenu__item,
+.masthead__logo { color: inherit; text-decoration: none; }
+
 .card {
   background: #fff;
   border: 1px solid var(--line);
@@ -512,7 +702,30 @@ body:not(.has-hero) #view { padding-top: 76px; }
   padding: 0;
   font-family: var(--body);
 }
-.card:hover { border-color: var(--navy); }
+.card {
+  transition:
+    transform 0.32s cubic-bezier(0.22, 0.68, 0.24, 1),
+    box-shadow 0.32s ease,
+    border-color 0.2s ease;
+}
+.card:hover {
+  border-color: var(--navy);
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px -18px rgba(0, 38, 71, 0.55);
+}
+.card:active { transform: translateY(-1px); }
+
+/* The photograph leans in a touch. overflow:hidden on the frame keeps it
+   inside, and scale never disturbs the grid. */
+.card__shot img { transition: transform 0.55s cubic-bezier(0.22, 0.68, 0.24, 1); }
+.card:hover .card__shot img { transform: scale(1.055); }
+
+.card__cue::after { transition: transform 0.28s cubic-bezier(0.22, 0.68, 0.24, 1); }
+.card:hover .card__cue::after { transform: translateX(5px); }
+
+/* The type tag rides along so the whole card feels like one object. */
+.card__tag { transition: background-color 0.24s ease; }
+.card:hover .card__tag { background: var(--red); }
 .card__shot { height: 186px; overflow: hidden; background: var(--img-bg); position: relative; }
 .card__shot img { width: 100%; height: 100%; object-fit: cover; }
 .card__tag {
@@ -529,14 +742,21 @@ body:not(.has-hero) #view { padding-top: 76px; }
 .card__name { font-family: var(--display); font-size: 25px; line-height: 1.02; color: var(--ink); margin-bottom: 12px; }
 .card__specs { font-size: 11.5px; color: var(--slate); margin-bottom: 18px; }
 .card__foot { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--line-soft); }
-.card__price { font-family: var(--display); font-size: 27px; line-height: 1; color: var(--navy); }
-.card__sub { font-size: 11.5px; color: var(--slate); margin-top: 3px; }
+/* Prices live on the vehicle page only, so the foot carries a cue instead. */
+.card__cue {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 10.5px; font-weight: 500;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--navy);
+}
+.card__cue::after { content: '→'; letter-spacing: 0; }
+.card:hover .card__cue { color: var(--red); }
 
 .empty { border: 1px solid var(--line); background: #fff; padding: 48px; text-align: center; }
 .empty__title { font-family: var(--serif); font-size: 24px; color: var(--navy); }
 .empty__note { font-size: 13px; color: var(--slate); margin-top: 8px; }
 
-/* ------------------------------------------------------- exchange and visit */
+/* ---------------------------------------------------- recondition and visit */
 
 .twoup { display: grid; grid-template-columns: 1fr 1fr; }
 .panel { padding: 56px var(--gutter); }
@@ -562,20 +782,60 @@ body:not(.has-hero) #view { padding-top: 76px; }
 }
 .field:focus { border-color: var(--navy); }
 
-.exchange__form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 500px; }
-.exchange__submit { font-family: var(--display); font-size: 16px; letter-spacing: 0.07em; padding: 13px 0 10px; }
-.exchange__result { margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--line-soft); }
-.exchange__result-label {
+.recondition__form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 500px; }
+
+/* ------------------------------------------------------------------- forms */
+
+/* Fields carry a visible label now rather than leaning on the placeholder,
+   which disappears the moment someone starts typing. */
+.field-wrap { display: flex; flex-direction: column; gap: 6px; }
+.field-label {
+  font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--slate);
+}
+.field-error { font-size: 11.5px; color: var(--red); }
+.field[aria-invalid='true'] { border-color: var(--red); }
+
+.formnote { font-size: 11.5px; color: var(--slate); line-height: 1.7; margin-top: 10px; }
+.formnote--bad { color: var(--red); }
+
+.formdone {
+  display: flex; gap: 14px; align-items: flex-start;
+  border: 1px solid var(--line); background: #fff;
+  padding: 20px 22px; margin-bottom: 24px;
+}
+.formdone__tick {
+  width: 30px; height: 30px; flex-shrink: 0;
+  background: var(--navy); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-size: 18px;
+}
+.formdone__title { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+.formdone__note { font-size: 12.5px; color: var(--slate); line-height: 1.7; }
+.formdone__actions { display: flex; align-items: center; gap: 16px; margin-top: 14px; flex-wrap: wrap; }
+.formdone__actions .btn { font-size: 10px; padding: 11px 20px; }
+
+/* A button that has to read as a link, for a secondary action beside one. */
+.linkbtn {
+  background: none; border: none; padding: 0; cursor: pointer;
+  font-family: var(--body); font-size: 12.5px; color: var(--red);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.linkbtn:hover { color: var(--red-dark); }
+.recondition__submit { font-size: 10.5px; padding: 15px 0; grid-column: 1 / -1; }
+.recondition__result { margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--line-soft); }
+.recondition__result-label {
   font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
   color: var(--slate); margin-bottom: 5px;
 }
-.exchange__range { font-family: var(--display); font-size: 40px; line-height: 0.95; color: var(--navy); }
+.recondition__range { font-family: var(--display); font-size: 40px; line-height: 0.95; color: var(--navy); }
 
 .visit__legend {
   font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
   color: var(--slate); margin-bottom: 10px;
 }
 .visit__times { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
+.visit__time { transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease; }
 .visit__time {
   font-size: 12.5px; padding: 10px 18px; border: 1px solid var(--field);
   background: none; cursor: pointer; font-family: var(--body); color: var(--ink);
@@ -583,7 +843,7 @@ body:not(.has-hero) #view { padding-top: 76px; }
 .visit__time.is-on { border-color: var(--navy); background: var(--navy); color: #fff; }
 .visit__signup { display: flex; gap: 12px; max-width: 460px; }
 .visit__signup .field { flex: 1; font-size: 13px; padding: 14px 16px; }
-.visit__confirm { font-family: var(--display); font-size: 17px; letter-spacing: 0.07em; padding: 14px 26px 10px; }
+.visit__confirm { font-size: 10.5px; padding: 15px 24px; }
 .visit__address {
   margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--line-soft);
   font-size: 13px; color: var(--slate); line-height: 1.8;
@@ -599,7 +859,8 @@ body:not(.has-hero) #view { padding-top: 76px; }
   font-size: 12.5px; color: var(--slate);
   flex-wrap: wrap;
 }
-.crumbs button {
+.crumbs button,
+.crumbs a {
   cursor: pointer; color: var(--red); background: none; border: none;
   padding: 0; font-family: var(--body); font-size: 12.5px;
 }
@@ -611,7 +872,7 @@ body:not(.has-hero) #view { padding-top: 76px; }
 .detail__left { padding: 44px 40px 56px var(--gutter); border-right: 1px solid var(--line); }
 .detail__right { padding: 44px var(--gutter) 56px 40px; }
 
-.detail__hero { height: 440px; overflow: hidden; background: var(--img-bg); margin-bottom: 12px; }
+.detail__hero { position: relative; height: 440px; overflow: hidden; background: var(--img-bg); margin-bottom: 12px; }
 .detail__hero img { width: 100%; height: 100%; object-fit: cover; }
 .detail__thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 .detail__thumb {
@@ -619,6 +880,7 @@ body:not(.has-hero) #view { padding-top: 76px; }
   outline: 2px solid transparent; outline-offset: -2px; border: none; padding: 0;
 }
 .detail__thumb.is-on { outline-color: var(--navy); }
+.detail__thumb:focus-visible { outline-color: var(--red); }
 .detail__thumb img { width: 100%; height: 100%; object-fit: cover; }
 .detail__caption { font-size: 11.5px; color: var(--muted); margin: 10px 0 44px; }
 
@@ -641,8 +903,6 @@ body:not(.has-hero) #view { padding-top: 76px; }
 
 .pricebox { background: var(--navy); color: #fff; padding: 28px 30px; }
 .pricebox__row { display: flex; justify-content: space-between; align-items: baseline; }
-.pricebox__row--top { padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.18); }
-.pricebox__row--bottom { padding-top: 16px; }
 .pricebox__label { font-size: 12.5px; color: rgba(255, 255, 255, 0.72); }
 .pricebox__value { font-family: var(--display); font-size: 34px; line-height: 1; }
 .pricebox__value--emi { color: var(--pink); }
@@ -665,12 +925,15 @@ body:not(.has-hero) #view { padding-top: 76px; }
   border: 1px solid var(--line); background: #fff; padding: 10px;
   text-align: left; font-family: var(--body); width: 100%;
 }
-.related__item:hover { border-color: var(--navy); }
+.related__item {
+  transition: border-color 0.2s ease, transform 0.28s cubic-bezier(0.22, 0.68, 0.24, 1);
+}
+.related__item:hover { border-color: var(--navy); transform: translateX(4px); }
 .related__shot { width: 72px; height: 56px; overflow: hidden; background: var(--img-bg); flex-shrink: 0; }
 .related__shot img { width: 100%; height: 100%; object-fit: cover; }
 .related__meta { flex: 1; min-width: 0; }
 .related__name { font-family: var(--display); font-size: 20px; line-height: 1.05; color: var(--ink); }
-.related__price { font-size: 11.5px; color: var(--slate); }
+.related__price { font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
 
 /* ------------------------------------------------------------ finance view */
 
@@ -732,15 +995,15 @@ body:not(.has-hero) #view { padding-top: 76px; }
   color: var(--slate); margin-bottom: 14px;
 }
 .done__card p { font-size: 13.5px; color: var(--ink); line-height: 1.7; }
-.done__card .btn { margin-top: 16px; font-size: 18px; padding: 14px 30px 10px; }
-.done__back { cursor: pointer; font-size: 13px; color: var(--red); background: none; border: none; padding: 0; font-family: var(--body); }
+.done__card .btn { margin-top: 16px; font-size: 10.5px; padding: 14px 26px; }
+.done__back { cursor: pointer; font-size: 13px; color: var(--red); background: none; border: none; padding: 0; font-family: var(--body); display: inline-block; }
 
 .summary { background: var(--navy); color: #fff; padding: 44px 40px; }
 .summary__eyebrow {
   font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
   color: rgba(255, 255, 255, 0.6); margin-bottom: 18px;
 }
-.summary__shot { height: 180px; overflow: hidden; background: rgba(255, 255, 255, 0.08); margin-bottom: 20px; }
+.summary__shot { position: relative; height: 180px; overflow: hidden; background: rgba(255, 255, 255, 0.08); margin-bottom: 20px; }
 .summary__shot img { width: 100%; height: 100%; object-fit: cover; }
 .summary__name { font-family: var(--serif); font-size: 28px; line-height: 1.08; margin-bottom: 24px; }
 .summary__row {
@@ -771,9 +1034,13 @@ body:not(.has-hero) #view { padding-top: 76px; }
   display: flex; align-items: center; justify-content: center; gap: 14px;
   flex-wrap: wrap;
 }
+.browseall { transition: background-color 0.26s ease; }
 .browseall:hover { background: var(--ink); }
+.browseall__label::after { transition: transform 0.28s cubic-bezier(0.22, 0.68, 0.24, 1); }
+.browseall:hover .browseall__label::after { transform: translateX(6px); }
 .browseall__label {
-  font-family: var(--display); font-size: 22px; letter-spacing: 0.06em; line-height: 1;
+  font-size: 11.5px; font-weight: 500;
+  letter-spacing: 0.17em; text-transform: uppercase; line-height: 1;
 }
 .browseall__label::after {
   content: '→';
@@ -790,7 +1057,8 @@ body:not(.has-hero) #view { padding-top: 76px; }
 }
 .storebar__brands { display: flex; flex-wrap: wrap; gap: 8px; }
 /* Off the navy header these need the light treatment. */
-.storebar__brands .pill { background: #fff; color: var(--ink); border-color: var(--field); }
+.storebar__brands .pill { transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease; }
+.pill { background: #fff; color: var(--ink); border-color: var(--field); }
 .storebar__brands .pill.is-on { background: var(--navy); color: #fff; border-color: var(--navy); }
 
 .storebar__tail { margin-left: auto; display: flex; align-items: center; gap: 12px; }
@@ -800,6 +1068,35 @@ body:not(.has-hero) #view { padding-top: 76px; }
 .storebar__sort { width: auto; padding: 9px 12px; font-size: 12.5px; }
 .storebar__count { font-size: 12.5px; color: var(--slate); white-space: nowrap; }
 .storebar__count strong { color: var(--navy); font-weight: 600; }
+
+/* ---------------------------------------------------------- photo watermark
+
+   Sits on every vehicle photograph, courtesy of the Shot component. The logo
+   is dark ink on transparent, so it is knocked out to white and softened —
+   readable on a dark bonnet or a bright showroom floor alike, without fighting
+   the vehicle for attention. Never intercepts a click. */
+
+.shot-mark {
+  position: absolute;
+  right: 3.5%;
+  bottom: 3.5%;
+  width: 26%;
+  min-width: 46px;
+  max-width: 104px;
+  aspect-ratio: 1062 / 752;
+  background: url('/assets/logo.png') right bottom / contain no-repeat;
+  filter: brightness(0) invert(1) drop-shadow(0 1px 3px rgba(0, 20, 40, 0.5));
+  opacity: 0.62;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Too small to read, so it would only be noise. */
+.detail__thumb .shot-mark,
+.related__shot .shot-mark { display: none; }
+
+/* Room to breathe on the big one. */
+.detail__hero .shot-mark { width: 18%; max-width: 150px; right: 2.5%; bottom: 2.5%; }
 
 /* --------------------------------------------------- unphotographed stock */
 
@@ -901,30 +1198,15 @@ body:not(.has-hero) #view { padding-top: 76px; }
 .howto__name { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
 .howto__text { font-size: 12.5px; color: var(--slate); line-height: 1.7; }
 
-/* ----------------------------------------------------------- testimonials */
+/* ---------------------------------------------------------- recondition -- */
 
-.voices { background: var(--bg-alt); border-bottom: 1px solid var(--line); padding: 60px var(--gutter); }
-.voices__head { margin-bottom: 36px; }
-.voices__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.voice { background: #fff; border: 1px solid var(--line); padding: 28px 30px 26px; display: flex; flex-direction: column; }
-.voice__text {
-  font-size: 14px; line-height: 1.75; color: var(--ink);
-  font-weight: 300; flex: 1;
-}
-.voice__text::before { content: '“'; font-family: var(--display); font-size: 34px; color: var(--red); display: block; line-height: 0.6; margin-bottom: 12px; }
-.voice__who { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line-soft); }
-.voice__name { display: block; font-size: 13.5px; font-weight: 600; color: var(--navy); }
-.voice__role { display: block; font-size: 11.5px; color: var(--slate); margin-top: 2px; }
-
-/* ------------------------------------------------------------- exchange -- */
-
-.exchange__points {
+.recondition__points {
   display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px;
   max-width: 500px; margin: -8px 0 28px;
 }
-.exchange__point { border-left: 2px solid var(--red); padding-left: 12px; }
-.exchange__point-name { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink); }
-.exchange__point-note { display: block; font-size: 11.5px; color: var(--slate); margin-top: 2px; }
+.recondition__point { border-left: 2px solid var(--red); padding-left: 12px; }
+.recondition__point-name { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink); }
+.recondition__point-note { display: block; font-size: 11.5px; color: var(--slate); margin-top: 2px; }
 
 .visit__line { display: flex; gap: 10px; padding: 5px 0; flex-wrap: wrap; }
 .visit__line > span:first-child {
@@ -1010,6 +1292,332 @@ body:not(.has-hero) #view { padding-top: 76px; }
 .shot img { width: 100%; height: 240px; object-fit: cover; }
 .shot figcaption { font-size: 12px; color: var(--slate); padding: 12px 16px; }
 
+/* --------------------------------------------------------- recondition page
+
+   The form carries the page, so it takes the wider column; everything that
+   supports it sits alongside. */
+
+.recondition__page {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 36px;
+  padding: 44px var(--gutter) 56px;
+  align-items: start;
+}
+
+.recondition__main {
+  background: #fff;
+  border: 1px solid var(--line);
+  padding: 30px 32px 32px;
+}
+
+/* On its own page the form has room to breathe, so the fields go full width
+   rather than pairing up. */
+.valuation .recondition__form { grid-template-columns: 1fr 1fr; max-width: none; }
+
+.recondition__aside { display: flex; flex-direction: column; gap: 26px; }
+
+.recondition__points--stack { display: grid; grid-template-columns: 1fr; gap: 14px; margin: 0; max-width: none; }
+
+.recondition__steps { background: var(--bg-alt); padding: 24px 26px; }
+.recondition__step { display: flex; gap: 14px; align-items: flex-start; margin-top: 16px; }
+.recondition__step-num {
+  flex-shrink: 0;
+  width: 24px; height: 24px;
+  background: var(--navy); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-size: 14px; line-height: 1;
+}
+.recondition__step-name { display: block; font-size: 13px; font-weight: 600; color: var(--ink); }
+.recondition__step-note { display: block; font-size: 12px; color: var(--slate); line-height: 1.65; margin-top: 3px; }
+
+.recondition__help { border: 1px solid var(--line); padding: 24px 26px; }
+.recondition__help-title { font-family: var(--serif); font-size: 21px; color: var(--navy); }
+.recondition__help-note { font-size: 12.5px; color: var(--slate); line-height: 1.7; margin-top: 8px; }
+.recondition__help-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+
+/* The home page keeps a short version that hands off to the page. */
+.recondition__cta { margin-top: 24px; padding: 15px 26px; }
+
+@media (max-width: 980px) {
+  .recondition__page { grid-template-columns: 1fr; gap: 26px; }
+}
+
+@media (max-width: 720px) {
+  .recondition__page { padding: 28px var(--gutter) 40px; }
+  .recondition__main { padding: 22px 20px 24px; }
+  .valuation .recondition__form { grid-template-columns: 1fr; }
+}
+
+/* ------------------------------------------------------------ photo upload
+
+   The native file input is unstyleable and says "No file chosen", so it is
+   hidden inside a label that carries the whole control. Clicking the label
+   still opens the picker, and the input keeps its own focus ring. */
+
+.recondition__photos { grid-column: 1 / -1; }
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  text-align: center;
+  padding: 20px 18px;
+  border: 1px dashed var(--field);
+  background: var(--bg);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.dropzone:hover { border-color: var(--navy); background: var(--bg-alt); }
+
+/* Off-screen rather than display:none, which would take it out of the tab
+   order and make the control unreachable by keyboard. */
+.dropzone input[type='file'] {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.dropzone:focus-within { outline: 2px solid var(--red); outline-offset: 3px; }
+
+.dropzone__cue {
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--navy);
+}
+.dropzone__hint { font-size: 11.5px; color: var(--slate); line-height: 1.6; }
+
+.thumbs {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+.thumbs__item {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--img-bg);
+  border: 1px solid var(--line);
+}
+.thumbs__item img { width: 100%; height: 100%; object-fit: cover; }
+
+@media (max-width: 720px) {
+  .thumbs { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dropzone { transition: none; }
+}
+
+/* ------------------------------------------------------------------ journal */
+
+.postgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.postgrid--tight { grid-template-columns: repeat(2, 1fr); margin-top: 14px; }
+
+.post {
+  display: flex; flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--line);
+  padding: 26px 26px 24px;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    transform 0.32s cubic-bezier(0.22, 0.68, 0.24, 1),
+    box-shadow 0.32s ease,
+    border-color 0.2s ease;
+}
+.post:hover {
+  border-color: var(--navy);
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px -18px rgba(0, 38, 71, 0.55);
+}
+.post:active { transform: translateY(-1px); }
+
+.post__meta {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+.post__title {
+  font-family: var(--serif);
+  font-size: 25px; line-height: 1.16;
+  color: var(--navy);
+}
+.post__excerpt { font-size: 13px; color: var(--slate); line-height: 1.72; margin-top: 12px; }
+.post__cue {
+  margin-top: auto; padding-top: 18px;
+  font-size: 10.5px; font-weight: 500;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--navy);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.post__cue::after { content: '→'; letter-spacing: 0; transition: transform 0.28s cubic-bezier(0.22, 0.68, 0.24, 1); }
+.post:hover .post__cue { color: var(--red); }
+.post:hover .post__cue::after { transform: translateX(5px); }
+
+/* A column narrow enough to read comfortably — roughly seventy characters. */
+.article { max-width: 720px; margin: 0 auto; padding: 48px var(--gutter) 20px; }
+.article__head { border-bottom: 1px solid var(--line); padding-bottom: 28px; margin-bottom: 32px; }
+.article__meta {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--muted);
+}
+.article__title {
+  font-family: var(--serif);
+  font-size: clamp(32px, 4.4vw, 46px); line-height: 1.08;
+  color: var(--navy);
+  margin: 16px 0 14px;
+}
+.article__standfirst { font-size: 16px; font-weight: 300; line-height: 1.72; color: var(--slate); }
+
+.article__body p { font-size: 15px; line-height: 1.85; color: var(--ink); margin-bottom: 20px; }
+.article__h2 {
+  font-family: var(--serif);
+  font-size: 26px; line-height: 1.2; color: var(--navy);
+  margin: 34px 0 14px;
+}
+
+.article__ask {
+  margin-top: 40px;
+  background: var(--bg-alt);
+  border-left: 3px solid var(--red);
+  padding: 26px 28px;
+}
+.article__ask-title { font-family: var(--serif); font-size: 22px; color: var(--navy); }
+.article__ask-note { font-size: 13px; color: var(--slate); line-height: 1.7; margin-top: 8px; }
+.article__ask-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+
+@media (max-width: 980px) {
+  .postgrid { grid-template-columns: repeat(2, 1fr); }
+  .postgrid--tight { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+  .postgrid { grid-template-columns: 1fr; }
+  .article { padding: 32px var(--gutter) 12px; }
+  .post__title { font-size: 22px; }
+  .article__body p { font-size: 14.5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .post, .post__cue::after { transition: none; }
+  .post:hover, .post:active { transform: none; }
+  .post:hover .post__cue::after { transform: none; }
+}
+
+/* ------------------------------------------------------------- lead capture
+
+   Centred over the page rather than tucked in a corner, because it is asking
+   for something and a corner card gets ignored. It comes back with a scrim and
+   everything a modal owes the reader: Escape, a click away, trapped focus, and
+   the page held still behind it. */
+
+.leadwrap {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.leadwrap__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 20, 40, 0.55);
+  animation: leadScrim 0.32s ease both;
+}
+
+@keyframes leadScrim {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.lead {
+  position: relative;
+  width: min(420px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  background: #fff;
+  border-top: 3px solid var(--red);
+  box-shadow: 0 40px 80px -30px rgba(0, 20, 40, 0.7);
+  padding: 28px 30px 30px;
+  animation: leadIn 0.42s cubic-bezier(0.22, 0.68, 0.24, 1) both;
+}
+.lead:focus { outline: none; }
+
+@keyframes leadIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+.lead__close {
+  position: absolute; top: 8px; right: 10px;
+  background: none; border: none; cursor: pointer;
+  font-size: 24px; line-height: 1; color: var(--muted); padding: 4px 8px;
+}
+.lead__close:hover { color: var(--red); }
+
+.lead__title {
+  font-family: var(--serif);
+  font-size: 27px; line-height: 1.1; color: var(--navy);
+  padding-right: 24px;
+}
+.lead__note { font-size: 12.5px; color: var(--slate); line-height: 1.65; margin-top: 8px; }
+
+.lead__set { border: none; padding: 0; margin: 20px 0 0; }
+.lead__legend {
+  font-size: 9.5px; font-weight: 500;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 9px; padding: 0;
+}
+.lead__chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.lead__chip {
+  font-family: var(--body);
+  font-size: 11px; letter-spacing: 0.04em;
+  padding: 8px 12px;
+  border: 1px solid var(--field);
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+.lead__chip:hover { border-color: var(--navy); }
+.lead__chip.is-on { background: var(--navy); border-color: var(--navy); color: #fff; }
+
+.lead__row { display: flex; gap: 8px; margin-top: 22px; }
+.lead__row .field { flex: 1; font-size: 13px; padding: 12px 12px; }
+.lead__row .btn { font-size: 9.5px; padding: 12px 15px; white-space: nowrap; }
+
+.lead__done { text-align: center; padding: 8px 0 4px; }
+.lead__tick {
+  width: 44px; height: 44px; margin: 0 auto 14px;
+  background: var(--navy); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-size: 24px;
+}
+.lead__done .lead__title { padding-right: 0; }
+
+@media (max-width: 720px) {
+  .leadwrap { padding: 14px; align-items: center; }
+  .lead { width: 100%; padding: 22px 20px 24px; }
+  .lead__title { font-size: 23px; }
+  .lead__row { flex-direction: column; }
+  .lead__row .btn { padding: 14px 15px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lead, .leadwrap__scrim { animation: none; }
+}
+
 /* ------------------------------------------------- floating WhatsApp button */
 
 .wa {
@@ -1024,6 +1632,7 @@ body:not(.has-hero) #view { padding-top: 76px; }
   transition: transform 0.15s ease;
 }
 .wa:hover { transform: scale(1.06); }
+/* The lead card occupies the other corner, so these two never collide. */
 .wa svg { width: 30px; height: 30px; fill: #fff; }
 
 /* --------------------------------------------------- filter sidebar (mobile)
@@ -1083,7 +1692,8 @@ body:not(.has-hero) #view { padding-top: 76px; }
 .drawer__body .sechead__filter-label { color: var(--slate); }
 .drawer__body .brandpills,
 .drawer__body .typechips { justify-content: flex-start; max-width: none; }
-.drawer__body .pill { background: #fff; color: var(--ink); border-color: var(--field); }
+.drawer__body .pill { transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease; }
+.pill { background: #fff; color: var(--ink); border-color: var(--field); }
 .drawer__body .pill.is-on { background: var(--navy); color: #fff; border-color: var(--navy); }
 
 .drawer__body .filterbar {
@@ -1132,7 +1742,7 @@ body.is-drawer-open { overflow: hidden; }
 .navmenu__contact p { font-size: 12.5px; color: var(--slate); line-height: 1.7; margin-bottom: 18px; }
 .navmenu__contact a { color: var(--ink); }
 .navmenu__foot { display: flex; flex-direction: column; gap: 10px; }
-.navmenu__foot .btn { font-size: 18px; padding: 14px 0 10px; }
+.navmenu__foot .btn { font-size: 11px; padding: 15px 0; }
 
 /* ------------------------------------------------ detail action bar (mobile) */
 
@@ -1158,7 +1768,7 @@ body.is-drawer-open { overflow: hidden; }
   display: block;
   font-family: var(--display); font-size: 24px; line-height: 1.1; color: var(--navy);
 }
-.actionbar__cta { font-size: 18px; padding: 13px 24px 9px; white-space: nowrap; }
+.actionbar__cta { font-size: 10.5px; padding: 14px 22px; white-space: nowrap; }
 
 /* ------------------------------------------------------------------- footer */
 
@@ -1204,7 +1814,6 @@ body.is-drawer-open { overflow: hidden; }
   .brandpills { justify-content: flex-start; }
   .sechead__filters { display: inline-flex; }
   .howto__steps { grid-template-columns: repeat(2, 1fr); }
-  .voices__grid { grid-template-columns: 1fr; }
   .about__intro { grid-template-columns: 1fr; gap: 32px; }
   .values { grid-template-columns: repeat(2, 1fr); }
   .leaders { grid-template-columns: 1fr; }
@@ -1236,11 +1845,10 @@ body.is-drawer-open { overflow: hidden; }
   .hero__body { padding-bottom: 96px; }
   .hero__eyebrow { font-size: 9.5px; letter-spacing: 0.32em; margin-bottom: 14px; }
   .hero__rule { width: 120px; margin-top: 20px; }
-  .hero__short { font-size: 10.5px; letter-spacing: 0.2em; margin-top: 15px; }
   .hero__meta { margin-top: 20px; gap: 8px; }
   .hero__badge { font-size: 9px; padding: 6px 11px 5px; }
   .hero__actions { flex-wrap: wrap; gap: 10px; margin-top: 24px; }
-  .hero__actions .btn { font-size: 16px; padding: 12px 20px 8px; }
+  .hero__actions .btn { font-size: 10px; padding: 13px 20px; }
   .hero__arrow { display: none; }
   .hero__dots { bottom: 66px; }
   .hero__scroll { bottom: 18px; }
@@ -1260,7 +1868,7 @@ body.is-drawer-open { overflow: hidden; }
   .grid-wrap { padding: 24px var(--gutter) 36px; }
   .filterbar { gap: 24px; }
   .filterbar__tail { margin-left: 0; }
-  .exchange__form { grid-template-columns: 1fr; }
+  .recondition__form { grid-template-columns: 1fr; }
   .applicant { grid-template-columns: 1fr; }
   .detail__name { font-size: 34px; }
   .detail__hero { height: 260px; }
@@ -1277,12 +1885,12 @@ body.is-drawer-open { overflow: hidden; }
   .howto__steps { grid-template-columns: 1fr; }
   .howto__title, .about__h2, .panel__title { font-size: 28px; }
   .about__title { font-size: 34px; }
-  .exchange__points { grid-template-columns: 1fr; }
+  .recondition__points { grid-template-columns: 1fr; }
   .storebar { gap: 16px; }
   .storebar__tail { margin-left: 0; width: 100%; }
   .storebar__count { margin-left: auto; }
   .browseall { padding: 16px 18px; }
-  .browseall__label { font-size: 19px; }
+  .browseall__label { font-size: 10.5px; }
   .values { grid-template-columns: 1fr; }
   .team { grid-template-columns: repeat(2, 1fr); }
   .leader { flex-direction: column; gap: 16px; }
