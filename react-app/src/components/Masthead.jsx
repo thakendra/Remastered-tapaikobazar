@@ -66,7 +66,7 @@ export default function Masthead() {
               {label}
             </button>
           ))}
-          <Link to="/#exchange">Exchange</Link>
+          <Link to="/#recondition">Recondition</Link>
           <Link to="/about">About us</Link>
         </nav>
 
@@ -125,8 +125,8 @@ export default function Masthead() {
               {label}
             </button>
           ))}
-          <Link className="navmenu__item" to="/#exchange" onClick={() => setMenu(false)}>
-            Exchange
+          <Link className="navmenu__item" to="/#recondition" onClick={() => setMenu(false)}>
+            Recondition
           </Link>
           <Link className="navmenu__item" to="/about" onClick={() => setMenu(false)}>
             About us

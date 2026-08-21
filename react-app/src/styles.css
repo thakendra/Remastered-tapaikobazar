@@ -756,7 +756,7 @@ body:not(.has-hero) #view { padding-top: 76px; }
 .empty__title { font-family: var(--serif); font-size: 24px; color: var(--navy); }
 .empty__note { font-size: 13px; color: var(--slate); margin-top: 8px; }
 
-/* ------------------------------------------------------- exchange and visit */
+/* ---------------------------------------------------- recondition and visit */
 
 .twoup { display: grid; grid-template-columns: 1fr 1fr; }
 .panel { padding: 56px var(--gutter); }
@@ -782,7 +782,7 @@ body:not(.has-hero) #view { padding-top: 76px; }
 }
 .field:focus { border-color: var(--navy); }
 
-.exchange__form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 500px; }
+.recondition__form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 500px; }
 
 /* ------------------------------------------------------------------- forms */
 
@@ -822,13 +822,13 @@ body:not(.has-hero) #view { padding-top: 76px; }
   text-decoration: underline; text-underline-offset: 3px;
 }
 .linkbtn:hover { color: var(--red-dark); }
-.exchange__submit { font-size: 10.5px; padding: 14px 0; align-self: end; }
-.exchange__result { margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--line-soft); }
-.exchange__result-label {
+.recondition__submit { font-size: 10.5px; padding: 14px 0; align-self: end; }
+.recondition__result { margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--line-soft); }
+.recondition__result-label {
   font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
   color: var(--slate); margin-bottom: 5px;
 }
-.exchange__range { font-family: var(--display); font-size: 40px; line-height: 0.95; color: var(--navy); }
+.recondition__range { font-family: var(--display); font-size: 40px; line-height: 0.95; color: var(--navy); }
 
 .visit__legend {
   font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
@@ -1198,15 +1198,15 @@ body:not(.has-hero) #view { padding-top: 76px; }
 .howto__name { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
 .howto__text { font-size: 12.5px; color: var(--slate); line-height: 1.7; }
 
-/* ------------------------------------------------------------- exchange -- */
+/* ---------------------------------------------------------- recondition -- */
 
-.exchange__points {
+.recondition__points {
   display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px;
   max-width: 500px; margin: -8px 0 28px;
 }
-.exchange__point { border-left: 2px solid var(--red); padding-left: 12px; }
-.exchange__point-name { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink); }
-.exchange__point-note { display: block; font-size: 11.5px; color: var(--slate); margin-top: 2px; }
+.recondition__point { border-left: 2px solid var(--red); padding-left: 12px; }
+.recondition__point-name { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink); }
+.recondition__point-note { display: block; font-size: 11.5px; color: var(--slate); margin-top: 2px; }
 
 .visit__line { display: flex; gap: 10px; padding: 5px 0; flex-wrap: wrap; }
 .visit__line > span:first-child {
@@ -1541,7 +1541,7 @@ body.is-drawer-open { overflow: hidden; }
   .grid-wrap { padding: 24px var(--gutter) 36px; }
   .filterbar { gap: 24px; }
   .filterbar__tail { margin-left: 0; }
-  .exchange__form { grid-template-columns: 1fr; }
+  .recondition__form { grid-template-columns: 1fr; }
   .applicant { grid-template-columns: 1fr; }
   .detail__name { font-size: 34px; }
   .detail__hero { height: 260px; }
@@ -1558,7 +1558,7 @@ body.is-drawer-open { overflow: hidden; }
   .howto__steps { grid-template-columns: 1fr; }
   .howto__title, .about__h2, .panel__title { font-size: 28px; }
   .about__title { font-size: 34px; }
-  .exchange__points { grid-template-columns: 1fr; }
+  .recondition__points { grid-template-columns: 1fr; }
   .storebar { gap: 16px; }
   .storebar__tail { margin-left: 0; width: 100%; }
   .storebar__count { margin-left: auto; }

@@ -443,7 +443,7 @@ const COMPANY = {
     ['EV first Nepal', 'Nepal’s future is electric. We make EV ownership affordable for ordinary families through accessible financing.'],
     ['No collateral finance', 'We broke the barrier. Anyone with a valid KYC can get vehicle finance — no guarantor, no property, no complications.'],
     ['Multi brand choice', 'Honda, Yamaha, Bajaj, TVS, KYC, Kinglong, Danfe, Xpeng, GAC Aion and more, all in one place and all verified.'],
-    ['Exchange programme', 'Bring your old bike, scooter or car and get the best trade in value toward your next vehicle.'],
+    ['Recondition programme', 'Bring your old bike, scooter or car and get the best trade in value toward your next vehicle.'],
     ['Community first', 'We serve customers from across Nepal, including rural areas and small towns, not just the valley.']
   ],
 
@@ -485,8 +485,8 @@ const COMPANY = {
   }
 };
 
-const EXCHANGE = {
-  title: 'Maha Exchange Camp',
+const RECONDITION = {
+  title: 'Maha Recondition Camp',
   lede: 'Bring your old petrol or diesel vehicle to Panipokhari and get a bonus valuation applied straight to your new EV purchase. Our team values it on the spot.',
   points: [
     ['Any brand accepted', 'Petrol, diesel or gas vehicles'],
@@ -499,5 +499,5 @@ const EXCHANGE = {
 export {
   IMG, HERO_SLIDES, CATALOGUE, TWO_WHEELER_LIST, DOCS, TYPE_LABEL,
   FINANCE_DEFAULTS, CONTACT, TRUST_STATS, HOW_TO_BUY,
-  COMPANY, EXCHANGE, vanTerms, specRows
+  COMPANY, RECONDITION, vanTerms, specRows
 };

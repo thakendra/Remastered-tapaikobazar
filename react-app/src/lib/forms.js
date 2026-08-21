@@ -1,4 +1,4 @@
-/* Validation and the exchange estimate.
+/* Validation and the recondition estimate.
    Nothing here talks to a server — the site has no backend — so every form
    ends in something a person can act on: a confirmation and a WhatsApp
    handoff to the counter. */
@@ -27,7 +27,7 @@ const DEPRECIATION_PER_YEAR = 0.09;
 const WEAR_PER_10000_KM = 0.012;
 const FLOOR = 0.22; // never values a vehicle below this share of its base
 
-export function estimateExchange({ make, year, km }) {
+export function estimateRecondition({ make, year, km }) {
   const base = BASE[make];
   const kms = Number(km);
   const built = Number(year);

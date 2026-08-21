@@ -5,13 +5,13 @@ import Section from '../components/Section';
 import VehicleCard from '../components/VehicleCard';
 import { BrandPills, TypeChips, VanFilterBar } from '../components/Filters';
 import {
-  CONTACT, EXCHANGE, HOW_TO_BUY,
+  CONTACT, RECONDITION, HOW_TO_BUY,
 } from '../data/catalogue';
 import { useFilters } from '../lib/filtersContext';
 import useReveal from '../lib/useReveal';
 import { ALL_CARS, ALL_TW, ALL_VANS } from '../lib/vehicles';
 import { TW_PREVIEW, npr } from '../lib/format';
-import { MAKES, YEARS, cleanMobile, estimateExchange, isMobile } from '../lib/forms';
+import { MAKES, YEARS, cleanMobile, estimateRecondition, isMobile } from '../lib/forms';
 
 function HowToBuy() {
   return (
@@ -36,10 +36,10 @@ function HowToBuy() {
   );
 }
 
-function ExchangeAndVisit() {
+function ReconditionAndVisit() {
   return (
-    <div className="twoup" id="exchange">
-      <ExchangePanel />
+    <div className="twoup" id="recondition">
+      <ReconditionPanel />
       <VisitPanel />
     </div>
   );
@@ -47,7 +47,7 @@ function ExchangeAndVisit() {
 
 /* Was three inputs and an anchor to "#" printing one hardcoded range. Now the
    estimate answers what you type, and the counter still has the final word. */
-function ExchangePanel() {
+function ReconditionPanel() {
   const [make, setMake] = useState(MAKES[0]);
   const [year, setYear] = useState(String(YEARS[6]));
   const [km, setKm] = useState('');
@@ -68,24 +68,24 @@ function ExchangePanel() {
       return;
     }
     setError('');
-    setResult(estimateExchange({ make, year, km: kms }));
+    setResult(estimateRecondition({ make, year, km: kms }));
   };
 
   return (
     <div className="panel panel--white" data-reveal>
-      <span className="panel__eyebrow">{EXCHANGE.title}</span>
+      <span className="panel__eyebrow">{RECONDITION.title}</span>
       <h2 className="panel__title">Your old vehicle counts toward the down</h2>
-      <p className="panel__lede panel__lede--narrow">{EXCHANGE.lede}</p>
-      <div className="exchange__points">
-        {EXCHANGE.points.map(([name, note]) => (
-          <div className="exchange__point" key={name}>
-            <span className="exchange__point-name">{name}</span>
-            <span className="exchange__point-note">{note}</span>
+      <p className="panel__lede panel__lede--narrow">{RECONDITION.lede}</p>
+      <div className="recondition__points">
+        {RECONDITION.points.map(([name, note]) => (
+          <div className="recondition__point" key={name}>
+            <span className="recondition__point-name">{name}</span>
+            <span className="recondition__point-note">{note}</span>
           </div>
         ))}
       </div>
 
-      <form className="exchange__form" onSubmit={onSubmit} noValidate>
+      <form className="recondition__form" onSubmit={onSubmit} noValidate>
         <label className="field-wrap">
           <span className="field-label">Make</span>
           <select className="field" value={make} onChange={(e) => setMake(e.target.value)}>
@@ -108,19 +108,19 @@ function ExchangePanel() {
             value={km}
             onChange={(e) => setKm(e.target.value)}
             aria-invalid={error ? true : undefined}
-            aria-describedby={error ? 'exchange-error' : undefined}
+            aria-describedby={error ? 'recondition-error' : undefined}
           />
         </label>
-        <button type="submit" className="btn btn--navy exchange__submit">Estimate</button>
+        <button type="submit" className="btn btn--navy recondition__submit">Estimate</button>
       </form>
 
       {error ? (
-        <p className="formnote formnote--bad" id="exchange-error" role="alert">{error}</p>
+        <p className="formnote formnote--bad" id="recondition-error" role="alert">{error}</p>
       ) : null}
 
-      <div className="exchange__result">
-        <div className="exchange__result-label">Estimated range</div>
-        <div className="exchange__range">
+      <div className="recondition__result">
+        <div className="recondition__result-label">Estimated range</div>
+        <div className="recondition__range">
           {result ? `NPR ${npr(result.low)} – ${npr(result.high)}` : 'Fill the three fields'}
         </div>
         {result ? (
@@ -366,7 +366,7 @@ export default function Browse() {
       </div>
 
       <HowToBuy />
-      <ExchangeAndVisit />
+      <ReconditionAndVisit />
     </>
   );
 }
