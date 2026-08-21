@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Shot from '../components/Shot';
 import { CONTACT, DOCS, FINANCE_DEFAULTS } from '../data/catalogue';
-import { findVehicle } from '../lib/vehicles';
+import { useFilters } from '../lib/filtersContext';
 import { emi, npr, priceText, termText } from '../lib/format';
 import { cleanMobile, isMobile } from '../lib/forms';
 
@@ -14,7 +14,8 @@ const STEPS = [
 
 export default function Finance() {
   const { id } = useParams();
-  const v = findVehicle(id);
+  const f = useFilters();
+  const v = f.findVehicle(id);
 
   const [step, setStep] = useState(1);
   const [docs, setDocs] = useState([]);
@@ -44,6 +45,12 @@ export default function Finance() {
   const [down, setDown] = useState(() =>
     v ? v.down || Math.round((v.price || 0) * 0.25) : 0
   );
+
+  useEffect(() => {
+    if (v) {
+      setDown(v.down || Math.round((v.price || 0) * 0.25) || 0);
+    }
+  }, [v?.id, v?.down, v?.price]);
 
   const figures = useMemo(() => {
     if (!v) return null;

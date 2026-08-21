@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Shot from '../components/Shot';
-import { CATALOGUE, CONTACT } from '../data/catalogue';
-import { findVehicle } from '../lib/vehicles';
-import { priceText } from '../lib/format';
+import { CONTACT } from '../data/catalogue';
+import { useFilters } from '../lib/filtersContext';
+import { npr, priceText } from '../lib/format';
 
 export default function VehicleDetail() {
   const { id } = useParams();
-  const v = findVehicle(id);
+  const f = useFilters();
+  const v = f.findVehicle(id);
   const [shotAt, setShotAt] = useState(0);
 
   useEffect(() => setShotAt(0), [id]);
@@ -35,7 +36,7 @@ export default function VehicleDetail() {
   const mainImg = shots[shotAt] || v.img;
   const highlights = v.highlights || [];
 
-  const related = CATALOGUE.filter((x) => x.type === v.type && x.id !== v.id).slice(0, 3);
+  const related = (f.allVehicles || []).filter((x) => x.type === v.type && x.id !== v.id).slice(0, 3);
 
   return (
     <>
@@ -99,6 +100,12 @@ export default function VehicleDetail() {
               <span className="pricebox__label">Showroom price</span>
               <span className="pricebox__value">{priceText(v, 'Ask at the counter')}</span>
             </div>
+            {v.down ? (
+              <div className="pricebox__row" style={{ marginTop: '0.4rem', paddingTop: '0.4rem', borderTop: '1px solid #eee' }}>
+                <span className="pricebox__label">Min downpayment</span>
+                <span className="pricebox__value" style={{ fontWeight: 600 }}>NPR {npr(v.down)}</span>
+              </div>
+            ) : null}
           </div>
 
           <div className="detail__cta">

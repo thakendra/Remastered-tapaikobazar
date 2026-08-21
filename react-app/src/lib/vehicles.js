@@ -1,18 +1,46 @@
 import { CATALOGUE } from '../data/catalogue';
 import { catOf } from './format';
 
+let activeCatalogue = [...CATALOGUE];
+
+export function getActiveCatalogue() {
+  return activeCatalogue;
+}
+
+export function setActiveCatalogue(list) {
+  if (Array.isArray(list) && list.length > 0) {
+    activeCatalogue = list;
+  }
+}
+
+export function getVans(list = activeCatalogue) {
+  return list.filter((v) => catOf(v) === 'van');
+}
+
+export function getCars(list = activeCatalogue) {
+  return list.filter((v) => catOf(v) === 'car');
+}
+
+export function getTw(list = activeCatalogue) {
+  return list.filter((v) => catOf(v) === 'tw');
+}
+
 export const ALL_VANS = CATALOGUE.filter((v) => catOf(v) === 'van');
 export const ALL_CARS = CATALOGUE.filter((v) => catOf(v) === 'car');
 export const ALL_TW = CATALOGUE.filter((v) => catOf(v) === 'tw');
 
-export function findVehicle(id) {
+export function findVehicle(id, list = activeCatalogue) {
+  if (!id) return null;
+  const match = list.find((v) => v.id === id || v._id === id);
+  if (match) return match;
+  // Fallback search in base catalogue
   return CATALOGUE.find((v) => v.id === id) || null;
 }
 
 export function brandKeys(list) {
   const names = [];
-  list.forEach((v) => {
-    if (!names.includes(v.brand)) names.push(v.brand);
+  (list || []).forEach((v) => {
+    if (v.brand && !names.includes(v.brand)) names.push(v.brand);
   });
   return [{ label: 'All brands', key: 'all' }].concat(
     names.map((b) => ({ label: b, key: b }))

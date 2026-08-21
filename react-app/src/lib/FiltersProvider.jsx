@@ -1,11 +1,16 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { CATALOGUE } from '../data/catalogue';
 import { FiltersContext } from './filtersContext';
 import { VAN_PRICE_MAX } from './format';
-import { ALL_CARS, ALL_TW, ALL_VANS, seatsMatch } from './vehicles';
+import { fetchSanityVehicles, sanityClient } from './sanity';
+import { getCars, getTw, getVans, seatsMatch, setActiveCatalogue } from './vehicles';
 
-/* One source of truth for the filters, so a choice made in the browse section
-   still holds on the two wheeler page and the other way round. */
+/* One source of truth for the filters and live catalogue from Sanity Studio. */
 export default function FiltersProvider({ children }) {
+  const [allVehicles, setAllVehicles] = useState(CATALOGUE);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSanityConnected, setIsSanityConnected] = useState(false);
+
   const [brandVan, setBrandVan] = useState('all');
   const [brandCar, setBrandCar] = useState('all');
   const [brandTw, setBrandTw] = useState('all');
@@ -15,29 +20,83 @@ export default function FiltersProvider({ children }) {
   const [seats, setSeats] = useState('all');
   const [acOnly, setAcOnly] = useState(false);
 
+  const refreshVehicles = useCallback(async () => {
+    try {
+      const sanityData = await fetchSanityVehicles();
+      if (Array.isArray(sanityData) && sanityData.length > 0) {
+        // Merge Sanity vehicles with baseline CATALOGUE so all categories remain populated
+        const merged = [...CATALOGUE];
+        sanityData.forEach((sDoc) => {
+          const idx = merged.findIndex((c) => c.id === sDoc.id || c._id === sDoc._id);
+          if (idx !== -1) {
+            merged[idx] = { ...merged[idx], ...sDoc };
+          } else {
+            // New vehicle created in Sanity Studio - prepend to top
+            merged.unshift(sDoc);
+          }
+        });
+        setAllVehicles(merged);
+        setActiveCatalogue(merged);
+        setIsSanityConnected(true);
+      }
+    } catch (err) {
+      console.info('Using local catalogue fallback (Sanity dataset empty or offline):', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshVehicles();
+
+    // Subscribe to live Sanity Studio changes
+    let subscription = null;
+    try {
+      subscription = sanityClient
+        .listen('*[_type == "vehicle"]')
+        .subscribe((update) => {
+          if (update) {
+            refreshVehicles();
+          }
+        });
+    } catch (err) {
+      console.warn('Sanity realtime listener not available:', err);
+    }
+
+    return () => {
+      if (subscription && typeof subscription.unsubscribe === 'function') {
+        subscription.unsubscribe();
+      }
+    };
+  }, [refreshVehicles]);
+
+  const allVans = useMemo(() => getVans(allVehicles), [allVehicles]);
+  const allCars = useMemo(() => getCars(allVehicles), [allVehicles]);
+  const allTw = useMemo(() => getTw(allVehicles), [allVehicles]);
+
   const vans = useMemo(
     () =>
-      ALL_VANS.filter((v) => {
+      allVans.filter((v) => {
         if (brandVan !== 'all' && v.brand !== brandVan) return false;
-        if (v.price > maxPrice) return false;
+        if (v.price && v.price > maxPrice) return false;
         if (acOnly && !v.ac) return false;
         return seatsMatch(v, seats);
       }),
-    [brandVan, maxPrice, acOnly, seats]
+    [allVans, brandVan, maxPrice, acOnly, seats]
   );
 
   const cars = useMemo(
-    () => ALL_CARS.filter((v) => brandCar === 'all' || v.brand === brandCar),
-    [brandCar]
+    () => allCars.filter((v) => brandCar === 'all' || v.brand === brandCar),
+    [allCars, brandCar]
   );
 
   const tw = useMemo(
     () =>
-      ALL_TW.filter((v) => {
+      allTw.filter((v) => {
         if (brandTw !== 'all' && v.brand !== brandTw) return false;
         return twType === 'all' || v.type === twType;
       }),
-    [brandTw, twType]
+    [allTw, brandTw, twType]
   );
 
   const twSorted = useMemo(() => {
@@ -53,6 +112,18 @@ export default function FiltersProvider({ children }) {
     }
     return list;
   }, [tw, twSort]);
+
+  const findVehicleById = useCallback(
+    (id) => {
+      if (!id) return null;
+      return (
+        allVehicles.find((v) => v.id === id || v._id === id) ||
+        CATALOGUE.find((v) => v.id === id) ||
+        null
+      );
+    },
+    [allVehicles]
+  );
 
   const value = useMemo(() => {
     const resetVans = () => {
@@ -77,6 +148,14 @@ export default function FiltersProvider({ children }) {
     };
 
     return {
+      allVehicles,
+      allVans,
+      allCars,
+      allTw,
+      isLoading,
+      isSanityConnected,
+      refreshVehicles,
+      findVehicle: findVehicleById,
       brandVan, setBrandVan,
       brandCar, setBrandCar,
       brandTw, setBrandTw,
@@ -88,7 +167,28 @@ export default function FiltersProvider({ children }) {
       vans, cars, tw, twSorted,
       resetVans, activeCount,
     };
-  }, [brandVan, brandCar, brandTw, twType, twSort, maxPrice, seats, acOnly, vans, cars, tw, twSorted]);
+  }, [
+    allVehicles,
+    allVans,
+    allCars,
+    allTw,
+    isLoading,
+    isSanityConnected,
+    refreshVehicles,
+    findVehicleById,
+    brandVan,
+    brandCar,
+    brandTw,
+    twType,
+    twSort,
+    maxPrice,
+    seats,
+    acOnly,
+    vans,
+    cars,
+    tw,
+    twSorted,
+  ]);
 
   return <FiltersContext.Provider value={value}>{children}</FiltersContext.Provider>;
 }
