@@ -12,13 +12,49 @@ import Finance from './pages/Finance';
 import TwoWheelerStore from './pages/TwoWheelerStore';
 import VehicleDetail from './pages/VehicleDetail';
 
-/* Router keeps the scroll position between entries otherwise, which lands you
-   halfway down a page you have never seen. */
-function ScrollToTop() {
-  const { pathname } = useLocation();
+/* Clears the masthead, which is fixed. */
+const HEAD_ROOM = 96;
+
+/* Two jobs. Without it the router keeps the scroll position between entries,
+   which lands you halfway down a page you have never seen. And the router does
+   nothing at all with a hash, so a link to /#recondition would arrive at the
+   top of the home page and stop there.
+
+   Keyed on location.key rather than the pathname alone, so following the same
+   link twice, or from the page it already points at, still moves. */
+function ScrollManager() {
+  const { pathname, hash, key } = useLocation();
+
   useEffect(() => {
-    window.scrollTo({ top: 0 });
-  }, [pathname]);
+    if (!hash) {
+      window.scrollTo({ top: 0 });
+      return undefined;
+    }
+
+    const id = decodeURIComponent(hash.slice(1));
+
+    /* The section may not have mounted yet, and images settling afterwards can
+       move it, so try again a few times before giving up and going to the top. */
+    let tries = 0;
+    const go = () => {
+      const el = document.getElementById(id);
+      if (el) {
+        window.scrollTo({ top: Math.max(el.offsetTop - HEAD_ROOM, 0), behavior: 'smooth' });
+        /* Keep nudging while late layout shifts things, then stop. */
+        if (tries > 2) return;
+      }
+      if (tries > 6) {
+        if (!el) window.scrollTo({ top: 0 });
+        return;
+      }
+      tries += 1;
+      timer = setTimeout(go, 90);
+    };
+
+    let timer = setTimeout(go, 0);
+    return () => clearTimeout(timer);
+  }, [pathname, hash, key]);
+
   return null;
 }
 
@@ -33,7 +69,7 @@ export default function App() {
 
       <div className="site">
         <Masthead />
-        <ScrollToTop />
+        <ScrollManager />
 
         {/* Keyed on the path so each route mounts fresh and plays its entrance,
             rather than the next page snapping into the last one's place. */}
