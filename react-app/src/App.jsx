@@ -1,9 +1,12 @@
 import { useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
+import LeadPopup from './components/LeadPopup';
 import Masthead from './components/Masthead';
 import { CONTACT } from './data/catalogue';
 import FiltersProvider from './lib/FiltersProvider';
 import About from './pages/About';
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
 import Browse from './pages/Browse';
 import Finance from './pages/Finance';
 import TwoWheelerStore from './pages/TwoWheelerStore';
@@ -40,6 +43,8 @@ export default function App() {
             <Route path="/two-wheelers" element={<TwoWheelerStore />} />
             <Route path="/vehicle/:id" element={<VehicleDetail />} />
             <Route path="/finance/:id" element={<Finance />} />
+            <Route path="/journal" element={<Blog />} />
+            <Route path="/journal/:slug" element={<BlogPost />} />
             <Route path="/about" element={<About />} />
             <Route path="*" element={<Browse />} />
           </Routes>
@@ -52,6 +57,8 @@ export default function App() {
           <span>© 2026 TapaikoBazar · Prices change, the counter has the current ones.</span>
         </footer>
       </div>
+
+      <LeadPopup />
 
       <a
         className="wa"

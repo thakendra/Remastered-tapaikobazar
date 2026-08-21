@@ -46,3 +46,11 @@ export const VAN_PRICE_MAX = 8500000;
 /* How many two wheelers the browse page shows before handing off to the
    dedicated listing. */
 export const TW_PREVIEW = 12;
+
+/* "28 July 2026" — unambiguous, and no reliance on the reader's locale to
+   decide whether 07/28 is a month or a day. */
+export function longDate(iso) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+}
